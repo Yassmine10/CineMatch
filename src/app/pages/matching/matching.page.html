@@ -1,0 +1,118 @@
+<ion-content [fullscreen]="true" class="match-content">
+
+  <!-- Pull-to-refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="refresh-outline" refreshingSpinner="crescent"></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ─── HEADER ─────────────────────────────────────────── -->
+  <div class="match-header">
+    <span class="kicker">COMPATIBILITÉS DU JOUR</span>
+    <h1 class="page-title">CinéMatch</h1>
+    <p class="subtitle">
+      Utilisateurs partageant au moins {{ threshold }}&nbsp;% de vos favoris
+    </p>
+  </div>
+
+  <!-- ─── SKELETON LOADING ───────────────────────────────── -->
+  <ng-container *ngIf="isLoading">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+      <div class="sk-avatar">
+        <ion-skeleton-text [animated]="true" style="width:56px;height:56px;border-radius:50%"></ion-skeleton-text>
+      </div>
+      <div class="sk-body">
+        <ion-skeleton-text [animated]="true" style="width:60%;height:16px;margin-bottom:8px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width:40%;height:12px;margin-bottom:12px"></ion-skeleton-text>
+        <div style="display:flex;gap:8px">
+          <ion-skeleton-text [animated]="true" style="width:60px;height:80px;border-radius:8px" *ngFor="let j of [1,2,3]"></ion-skeleton-text>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ─── ÉTAT VIDE : PAS DE FAVORIS ───────────────────── -->
+  <ng-container *ngIf="!isLoading && hasNoFavorites">
+    <div class="empty-state">
+      <div class="empty-icon">🎬</div>
+      <h2>Ta playlist est vide</h2>
+      <p>Ajoute des films à ta playlist pour trouver des matchs cinéphiles !</p>
+      <button class="btn-primary" (click)="goToMovies()">
+        <ion-icon name="film-outline"></ion-icon>
+        Découvrir des films
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- ─── ÉTAT VIDE : AUCUN MATCH AU-DESSUS DU SEUIL ───── -->
+  <ng-container *ngIf="!isLoading && !hasNoFavorites && allMatches.length === 0">
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h2>Aucun match pour le moment</h2>
+      <p>Il faut au moins {{ threshold }}&nbsp;% de films en commun pour créer un match.</p>
+      <p class="hint">Enrichis ta playlist pour augmenter tes chances !</p>
+    </div>
+  </ng-container>
+
+  <!-- ─── LISTE DES MATCHS ───────────────────────────────── -->
+  <div class="matches-list" *ngIf="!isLoading && allMatches.length > 0">
+
+    <div class="match-card" *ngFor="let match of allMatches">
+
+      <!-- Ligne principale : avatar + infos + badge -->
+      <div class="card-header">
+
+        <!-- Avatar -->
+        <div class="avatar-wrap">
+          <ng-container *ngIf="match.user.photo && !match.user.photo.startsWith('http'); else httpAvatar">
+            <img [src]="match.user.photo" class="avatar-img" (error)="onPosterError($event)" alt="avatar" />
+          </ng-container>
+          <ng-template #httpAvatar>
+            <ng-container *ngIf="match.user.photo; else initialsAvatar">
+              <img [src]="match.user.photo" class="avatar-img" (error)="onPosterError($event)" alt="avatar" />
+            </ng-container>
+            <ng-template #initialsAvatar>
+              <div class="avatar-initials">{{ getInitials(match.user) }}</div>
+            </ng-template>
+          </ng-template>
+        </div>
+
+        <!-- Nom + films communs -->
+        <div class="user-info">
+          <h3 class="user-name">{{ match.user.prenom }} {{ match.user.nom }}</h3>
+          <span class="common-count">
+            <ion-icon name="film-outline"></ion-icon>
+            {{ match.commonMovieIds.length }} film{{ match.commonMovieIds.length > 1 ? 's' : '' }} en commun
+          </span>
+        </div>
+
+        <!-- Badge % circulaire -->
+        <div class="pct-badge" [ngClass]="getBadgeClass(match.percentage)">
+          <span class="pct-value">{{ match.percentage | number:'1.0-0' }}</span>
+          <span class="pct-symbol">%</span>
+        </div>
+      </div>
+
+      <!-- Mini-affiches des films en commun (scroll horizontal) -->
+      <div class="posters-scroll" *ngIf="match.commonMovies.length > 0">
+        <div class="poster-wrap" *ngFor="let movie of match.commonMovies">
+          <img
+            [src]="movie.posterUrl"
+            [alt]="movie.title"
+            class="mini-poster"
+            (error)="onPosterError($event)"
+          />
+          <span class="poster-title">{{ movie.title }}</span>
+        </div>
+      </div>
+
+      <!-- Bouton Voir le profil -->
+      <button class="btn-profile" (click)="viewProfile(match)">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        Voir le profil
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+
+    </div>
+  </div>
+
+</ion-content>

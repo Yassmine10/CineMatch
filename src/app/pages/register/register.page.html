@@ -1,0 +1,140 @@
+<ion-content class="register-content" [fullscreen]="true">
+  <div class="page-container">
+
+    <!-- Header supérieur avec Retour et Titre -->
+    <header class="top-nav">
+      <button class="nav-btn" (click)="goBack()" type="button" title="Retour">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+
+      <h1 class="page-title">Créer mon profil</h1>
+
+      <!-- Spacer invisible pour alignement parfait -->
+      <div class="nav-spacer"></div>
+    </header>
+
+    <!-- Corps de la page -->
+    <main class="main-body">
+
+      <!-- Section Avatar Photo -->
+      <div class="avatar-section">
+        <div class="avatar-dashed-ring" (click)="takePhoto()">
+          <img *ngIf="photoBase64" [src]="photoBase64" alt="Photo de profil" class="user-photo-img" />
+          <div *ngIf="!photoBase64" class="default-avatar-placeholder">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+
+          <!-- Bouton violet flottant Caméra -->
+          <button class="camera-floating-btn" type="button" (click)="takePhoto()">
+            <ion-icon name="camera-outline"></ion-icon>
+          </button>
+        </div>
+
+        <p class="avatar-hint">Ajoute une photo pour être reconnu·e</p>
+      </div>
+
+      <!-- Formulaire d'inscription -->
+      <form (ngSubmit)="onRegister()" class="custom-form">
+
+        <!-- Ligne 2 colonnes : Prénom et Nom -->
+        <div class="form-row-2col">
+          <div class="field-group">
+            <label class="field-label">Prénom</label>
+            <div class="input-box">
+              <input
+                type="text"
+                [(ngModel)]="prenom"
+                name="prenom"
+                placeholder="Léa"
+                required
+                class="native-input" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Nom</label>
+            <div class="input-box">
+              <input
+                type="text"
+                [(ngModel)]="nom"
+                name="nom"
+                placeholder="Martin"
+                required
+                class="native-input" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Champ Âge -->
+        <div class="field-group">
+          <label class="field-label">Âge</label>
+          <div class="input-box">
+            <input
+              type="number"
+              [(ngModel)]="age"
+              name="age"
+              placeholder="28"
+              min="1"
+              max="120"
+              required
+              class="native-input" />
+          </div>
+        </div>
+
+        <!-- Champ Adresse Email -->
+        <div class="field-group">
+          <label class="field-label">Adresse email</label>
+          <div class="input-box">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <input
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="lea@exemple.com"
+              required
+              class="native-input" />
+          </div>
+        </div>
+
+        <!-- Champ Mot de passe avec bouton oeil -->
+        <div class="field-group">
+          <label class="field-label">Mot de passe</label>
+          <div class="input-box">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="8 caractères minimum"
+              required
+              class="native-input" />
+            <button
+              type="button"
+              class="eye-toggle-btn"
+              (click)="toggleShowPassword()"
+              [title]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bouton S'inscrire -->
+        <button type="submit" class="action-btn-pill ion-margin-top">
+          <span>S’inscrire</span>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+
+      </form>
+
+      <!-- Mention légale / CGU -->
+      <div class="footer-terms">
+        <p>En t'inscrivant, tu acceptes nos conditions d'utilisation.</p>
+      </div>
+
+    </main>
+
+  </div>
+</ion-content>
+
+<ion-loading [isOpen]="isLoading" message="Création du profil en cours..."></ion-loading>
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3500" (didDismiss)="isToastOpen = false"></ion-toast>

@@ -1,0 +1,104 @@
+<ion-content class="playlist-content" [fullscreen]="true">
+  <div class="page-container">
+
+    <!-- Header supérieur avec Logo et Titre de page -->
+    <header class="top-nav">
+      <div class="nav-logo">
+        <div class="logo-orb-small">
+          <div class="orb-dot dot-top"></div>
+          <div class="orb-heart">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="orb-dot dot-left"></div>
+          <div class="orb-dot dot-right"></div>
+        </div>
+        <span class="logo-text">
+          <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+          <span class="page-name-title">Ma playlist</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Titres principaux -->
+    <section class="hero-section">
+      <h1 class="hero-title">Mes films favoris</h1>
+      <p class="hero-subtitle">
+        {{ favoriteMovies.length }} film{{ favoriteMovies.length > 1 ? 's' : '' }} sélectionné{{ favoriteMovies.length > 1 ? 's' : '' }} pour affiner tes matchs.
+      </p>
+    </section>
+
+    <!-- Indication de swipe -->
+    <div class="swipe-hint-wrap" *ngIf="favoriteMovies.length > 0">
+      <span class="swipe-hint">Glisse vers la gauche pour supprimer</span>
+    </div>
+
+    <!-- Spinner de chargement -->
+    <div *ngIf="isLoading" class="state-container ion-text-center">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Chargement de votre playlist...</p>
+    </div>
+
+    <!-- État Playlist vide -->
+    <div *ngIf="!isLoading && favoriteMovies.length === 0" class="empty-playlist ion-text-center">
+      <div class="empty-icon-circle">
+        <ion-icon name="heart"></ion-icon>
+      </div>
+      <h2>Votre playlist est vide</h2>
+      <p>Explorez les films et appuyez sur le cœur ❤️ pour ajouter vos films préférés.</p>
+      <button class="explore-btn" type="button" (click)="goToMovies()">
+        <span>Explorer les films</span>
+      </button>
+    </div>
+
+    <!-- Liste des films favoris avec Swipe et bouton direct -->
+    <div *ngIf="!isLoading && favoriteMovies.length > 0" class="playlist-cards-list">
+      <ion-item-sliding *ngFor="let movie of favoriteMovies" #slidingItem class="movie-slide-item">
+
+        <!-- Carte de film principale -->
+        <div class="movie-fav-card" (click)="openDetail(movie)">
+          <div class="thumb-wrap">
+            <img [src]="movie.posterUrl" [alt]="movie.title" />
+          </div>
+
+          <div class="meta-wrap">
+            <h3 class="movie-title">{{ movie.title }}</h3>
+            <p class="movie-genre">{{ movie.year }} • {{ movie.genre }}</p>
+            <div class="rating-row">
+              <ion-icon name="star" class="star-icon"></ion-icon>
+              <span>{{ movie.rating | number:'1.1-1' }}</span>
+            </div>
+          </div>
+
+          <!-- Bouton poubelle direct -->
+          <button
+            class="trash-action-btn"
+            type="button"
+            (click)="removeFavorite(movie.id, $event, slidingItem)"
+            title="Supprimer">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- Options de swipe vers la gauche -->
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="removeFavorite(movie.id, $event, slidingItem)" expandable>
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+
+      </ion-item-sliding>
+    </div>
+
+    <!-- Bannière / Conseil en bas de page -->
+    <div class="tip-banner-card" *ngIf="!isLoading">
+      <div class="tip-icon-box">
+        <ion-icon name="people-outline"></ion-icon>
+      </div>
+      <div class="tip-text">
+        <p class="tip-bold">Plus ta playlist grandit,</p>
+        <p class="tip-light">plus tes matchs sont précis.</p>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

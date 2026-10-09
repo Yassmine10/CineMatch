@@ -1,0 +1,91 @@
+<ion-content class="movie-detail-content" [fullscreen]="true">
+
+  <!-- Spinner de chargement -->
+  <div *ngIf="isLoading" class="detail-loading-state ion-text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement du film...</p>
+  </div>
+
+  <div class="movie-detail-container" *ngIf="!isLoading && movie">
+
+    <!-- Section Backdrop Héroïque avec Dégradé Immersif -->
+    <div class="backdrop-hero-section">
+
+      <img
+        [src]="movie.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80'"
+        [alt]="movie.title"
+        class="backdrop-img"
+        (error)="onImgError($event)" />
+
+      <!-- Dégradé sombre pour fondre dans la page -->
+      <div class="backdrop-gradient-overlay"></div>
+
+      <!-- Barre de navigation supérieure (Bouton Retour, sans bouton menu) -->
+      <div class="hero-top-nav">
+        <button class="nav-back-circle-btn" (click)="goBack()" type="button" title="Retour">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Contenu textuel flottant en bas de l'affiche -->
+      <div class="hero-text-content">
+        <span class="director-kicker">CINÉMA • {{ (movie.genre || 'SÉLECTION').toUpperCase() }}</span>
+        <h1 class="movie-main-title">{{ movie.title }}</h1>
+        <div class="movie-meta-line">
+          <span>{{ movie.year }}</span>
+          <span class="meta-dot">•</span>
+          <span>{{ movie.genre }}</span>
+          <span class="meta-dot">•</span>
+          <span class="rating-gold">
+            <ion-icon name="star"></ion-icon>
+            <strong>{{ movie.rating | number:'1.1-1' }}</strong>
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Corps de la page de détail -->
+    <div class="detail-body-section">
+
+      <!-- En-tête Synopsis & Durée -->
+      <div class="synopsis-header-row">
+        <h2 class="synopsis-title">Synopsis</h2>
+        <span class="runtime-badge">{{ estimatedRuntime }}</span>
+      </div>
+
+      <!-- Texte du synopsis -->
+      <p class="synopsis-text">
+        {{ movie.overview }}
+      </p>
+
+      <!-- Tags d'ambiance / Mots-clés -->
+      <div class="tags-scroll-row">
+        <span *ngFor="let tag of movieTags" class="mood-tag-pill">
+          {{ tag }}
+        </span>
+      </div>
+
+      <!-- Bouton d'action principal Playlist (Toggle vert si déjà ajouté, violet sinon) -->
+      <div class="action-btn-wrap">
+        <button
+          class="playlist-toggle-btn"
+          [class.in-playlist]="isFavorite()"
+          (click)="toggleFavorite()"
+          type="button">
+          <ion-icon [name]="isFavorite() ? 'checkmark-outline' : 'heart-outline'"></ion-icon>
+          <span>{{ isFavorite() ? 'Dans ma playlist' : 'Ajouter à ma playlist' }}</span>
+        </button>
+      </div>
+
+      <!-- Lien secondaire : Voir ma playlist > -->
+      <div class="view-playlist-link-row" (click)="goToPlaylist()">
+        <span>Voir ma playlist</span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </div>
+
+    </div>
+
+  </div>
+
+</ion-content>

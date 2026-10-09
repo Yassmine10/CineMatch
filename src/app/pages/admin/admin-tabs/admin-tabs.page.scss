@@ -1,0 +1,36 @@
+.custom-admin-tab-bar {
+  --background: #110d24;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  height: 60px;
+  padding-bottom: 4px;
+
+  ion-tab-button {
+    --color: #716d8a;
+    --color-selected: #a855f7;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+
+    &.tab-selected {
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 32px;
+        height: 3px;
+        border-radius: 0 0 4px 4px;
+        background: linear-gradient(90deg, #c084fc 0%, #7c4dff 100%);
+        box-shadow: 0 2px 8px rgba(168, 85, 247, 0.6);
+      }
+    }
+  }
+}

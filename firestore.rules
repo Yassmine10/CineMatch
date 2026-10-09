@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Utilisateurs ────────────────────────────────────────────────────────
+    match /users/{uid} {
+      // Lecture : autorisée à tout utilisateur connecté (pour le matching)
+      allow read: if request.auth != null;
+
+      // Écriture : uniquement sur son propre document
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── Films ───────────────────────────────────────────────────────────────
+    match /movies/{movieId} {
+      // Lecture : autorisée à tout utilisateur connecté
+      allow read: if request.auth != null;
+
+      // Écriture : uniquement les admins (via custom claims ou rôle Firestore)
+      // Si vous utilisez le champ 'role' Firestore (pas de custom claims) :
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+  }
+}

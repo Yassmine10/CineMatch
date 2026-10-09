@@ -1,0 +1,86 @@
+<ion-content class="profile-content" [fullscreen]="true">
+  <div class="page-container">
+
+    <!-- Header supérieur avec Logo et Titre -->
+    <header class="top-nav">
+      <div class="nav-logo">
+        <div class="logo-orb-small">
+          <div class="orb-dot dot-top"></div>
+          <div class="orb-heart">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="orb-dot dot-left"></div>
+          <div class="orb-dot dot-right"></div>
+        </div>
+        <span class="logo-text">
+          <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+          <span class="page-name-title">Mon profil</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Corps du Profil -->
+    <main class="main-body" *ngIf="user">
+
+      <!-- Section Avatar & Nom -->
+      <div class="profile-hero">
+        <div class="avatar-ring-wrapper" (click)="updatePhoto()" title="Changer de photo">
+          <img
+            [src]="user.photo || 'https://ionicframework.com/docs/img/demos/avatar.ionic.png'"
+            [alt]="user.prenom"
+            class="profile-avatar-img" />
+
+          <!-- Bouton caméra flottant violet -->
+          <button class="camera-badge-btn" type="button" (click)="updatePhoto()">
+            <ion-icon name="camera-outline"></ion-icon>
+          </button>
+        </div>
+
+        <h1 class="user-display-name">{{ user.prenom }} {{ user.nom }}</h1>
+        <p class="user-sub-info">{{ user.age }} ans</p>
+
+        <!-- Badge Membre depuis -->
+        <div class="member-pill-badge">
+          <span>Membre depuis {{ memberSinceYear }}</span>
+        </div>
+      </div>
+
+      <!-- Bloc Statistiques (2 Colonnes) -->
+      <div class="stats-card">
+        <div class="stat-col">
+          <span class="stat-number">{{ user.favorites.length || 0 }}</span>
+          <span class="stat-label">Films favoris</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-col">
+          <span class="stat-number">{{ matchCount }}</span>
+          <span class="stat-label">Matchs trouvés</span>
+        </div>
+      </div>
+
+      <!-- Bloc Adresse Email -->
+      <div class="info-card">
+        <div class="icon-box-purple">
+          <ion-icon name="mail-outline"></ion-icon>
+        </div>
+        <div class="info-text">
+          <span class="info-label">Adresse email</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+      </div>
+
+      <!-- Bouton Se Déconnecter -->
+      <button class="logout-btn-card" type="button" (click)="onLogout()">
+        <ion-icon name="log-out-outline" class="logout-icon"></ion-icon>
+        <span>Se déconnecter</span>
+      </button>
+
+    </main>
+
+  </div>
+</ion-content>
+
+<ion-loading [isOpen]="isLoading" message="Mise à jour en cours..."></ion-loading>
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3000" (didDismiss)="isToastOpen = false"></ion-toast>

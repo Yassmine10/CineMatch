@@ -1,0 +1,98 @@
+<ion-content class="login-content" [fullscreen]="true">
+  <div class="page-container">
+
+    <!-- Header supérieur avec Logo -->
+    <header class="top-nav">
+      <div class="nav-logo">
+        <div class="logo-orb-small">
+          <div class="orb-dot dot-top"></div>
+          <div class="orb-heart">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="orb-dot dot-left"></div>
+          <div class="orb-dot dot-right"></div>
+        </div>
+        <span class="logo-text">
+          <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Corps de la page -->
+    <main class="main-body">
+
+      <!-- Titres & Slogan -->
+      <div class="hero-section">
+        <span class="kicker-badge">RAVI DE TE REVOIR</span>
+        <h1 class="hero-title">
+          Prêt pour ta prochaine<br />
+          <span class="gradient-text">rencontre cinéma ?</span>
+        </h1>
+        <p class="hero-subtitle">Connecte-toi pour retrouver tes films et tes matchs.</p>
+      </div>
+
+      <!-- Formulaire de connexion -->
+      <form (ngSubmit)="onLogin()" class="custom-form">
+
+        <!-- Champ Email -->
+        <div class="field-group">
+          <label class="field-label">Adresse email</label>
+          <div class="input-box">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <input
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="toi@exemple.com"
+              required
+              class="native-input" />
+          </div>
+        </div>
+
+        <!-- Champ Mot de passe avec bouton oeil -->
+        <div class="field-group">
+          <label class="field-label">Mot de passe</label>
+          <div class="input-box">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="••••••••"
+              required
+              class="native-input" />
+            <button
+              type="button"
+              class="eye-toggle-btn"
+              (click)="toggleShowPassword()"
+              [title]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lien Mot de passe oublié -->
+        <div class="forgot-wrapper">
+          <a routerLink="/forgot-password" class="forgot-link">Mot de passe oublié ?</a>
+        </div>
+
+        <!-- Bouton Se connecter -->
+        <button type="submit" class="action-btn-pill">
+          <span>Se connecter</span>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+
+      </form>
+
+      <!-- Lien vers Inscription -->
+      <div class="bottom-redirect">
+        <p>Nouveau sur CinéMatch ? <a routerLink="/register" class="signup-link">Créer un compte</a></p>
+      </div>
+
+    </main>
+
+  </div>
+</ion-content>
+
+<ion-loading [isOpen]="isLoading" message="Connexion en cours..."></ion-loading>
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3500" (didDismiss)="isToastOpen = false"></ion-toast>
