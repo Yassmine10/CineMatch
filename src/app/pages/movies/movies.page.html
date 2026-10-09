@@ -1,0 +1,126 @@
+<ion-content class="movies-content" [fullscreen]="true">
+  <div class="page-container">
+
+    <!-- Header avec Logo et Avatar utilisateur -->
+    <header class="top-nav">
+      <div class="nav-logo">
+        <div class="logo-orb-small">
+          <div class="orb-dot dot-top"></div>
+          <div class="orb-heart">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="orb-dot dot-left"></div>
+          <div class="orb-dot dot-right"></div>
+        </div>
+        <span class="logo-text">
+          <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+        </span>
+      </div>
+
+      <div class="user-avatar-wrap" (click)="goToProfile()" title="Mon profil">
+        <img
+          *ngIf="currentUser?.photo; else fallbackInitials"
+          [src]="currentUser.photo"
+          alt=""
+          (error)="onAvatarError()" />
+        <ng-template #fallbackInitials>
+          <div class="avatar-initials">{{ userInitials }}</div>
+        </ng-template>
+      </div>
+    </header>
+
+    <!-- Section Hero & Titre d'accueil -->
+    <section class="hero-section">
+      <span class="greeting-kicker">{{ greeting }}</span>
+      <h1 class="hero-title">
+        Quel film te fait<br />
+        vibrer <span class="gradient-text">ce soir ?</span>
+      </h1>
+    </section>
+
+    <!-- Barre de recherche personnalisée -->
+    <div class="search-box">
+      <ion-icon name="search-outline" class="search-icon"></ion-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="filterMovies()"
+        placeholder="Rechercher un film..."
+        class="search-input" />
+    </div>
+
+    <!-- Filtres de Catégories / Genres horizontaux -->
+    <div class="categories-scroll">
+      <button
+        *ngFor="let cat of categories"
+        (click)="selectCategory(cat)"
+        [class.active]="selectedCategory === cat"
+        class="category-pill"
+        type="button">
+        {{ cat }}
+      </button>
+    </div>
+
+    <!-- En-tête de section -->
+    <div class="section-header">
+      <h2 class="section-title">À découvrir</h2>
+      <span class="movie-count">{{ filteredMovies.length }} film{{ filteredMovies.length > 1 ? 's' : '' }}</span>
+    </div>
+
+    <!-- Spinner de chargement -->
+    <div *ngIf="isLoading" class="state-container ion-text-center">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Chargement des films...</p>
+    </div>
+
+    <!-- État aucun résultat -->
+    <div *ngIf="!isLoading && filteredMovies.length === 0" class="empty-state ion-text-center">
+      <p>Aucun film trouvé pour cette recherche.</p>
+    </div>
+
+    <!-- Grille 2 colonnes des films -->
+    <div *ngIf="!isLoading && filteredMovies.length > 0" class="movies-grid">
+      <div
+        *ngFor="let movie of filteredMovies"
+        (click)="openDetail(movie)"
+        class="movie-item-card">
+
+        <!-- Affiche avec effet de zoom au survol -->
+        <div class="poster-container">
+          <img
+            [src]="movie.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'"
+            [alt]="movie.title"
+            class="poster-img"
+            (error)="onPosterError($event)" />
+          
+          <!-- Badge note flottant en bas à gauche de l'affiche -->
+          <div class="rating-badge" *ngIf="movie.rating">
+            <ion-icon name="star" class="star-icon"></ion-icon>
+            <span>{{ movie.rating | number:'1.1-1' }}</span>
+          </div>
+        </div>
+
+        <!-- Informations & Bouton favori sous l'affiche -->
+        <div class="movie-footer">
+          <div class="text-meta">
+            <h3 class="movie-title">{{ movie.title }}</h3>
+            <p class="movie-sub">{{ movie.year }} • {{ movie.genre }}</p>
+          </div>
+
+          <button
+            class="fav-btn"
+            type="button"
+            (click)="toggleFavorite(movie, $event)"
+            title="Ajouter à ma playlist">
+            <ion-icon
+              [name]="isFavorite(movie.id) ? 'heart' : 'heart-outline'"
+              [class.active]="isFavorite(movie.id)">
+            </ion-icon>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</ion-content>

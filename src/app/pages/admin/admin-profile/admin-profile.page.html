@@ -1,0 +1,130 @@
+<ion-content class="admin-profile-content" [fullscreen]="true">
+  <div class="page-container">
+
+    <!-- Header supérieur avec Logo et Titre -->
+    <header class="top-nav">
+      <div class="nav-logo">
+        <div class="logo-orb-small">
+          <div class="orb-dot dot-top"></div>
+          <div class="orb-heart">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="orb-dot dot-left"></div>
+          <div class="orb-dot dot-right"></div>
+        </div>
+        <span class="logo-text">
+          <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+          <span class="page-name-title">Profil Admin</span>
+        </span>
+      </div>
+
+      <button class="logout-icon-btn" (click)="onLogout()" type="button" title="Se déconnecter">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </header>
+
+    <!-- Corps du Profil Admin -->
+    <main class="main-body" *ngIf="user">
+
+      <!-- Section Kicker -->
+      <div class="hero-kicker">
+        <span class="kicker-purple">ESPACE ADMINISTRATEUR</span>
+      </div>
+
+      <!-- Section Avatar & Nom -->
+      <div class="profile-hero">
+        <div class="avatar-ring-wrapper" (click)="updatePhoto()" title="Modifier la photo de profil">
+          <img
+            [src]="user.photo || 'https://ionicframework.com/docs/img/demos/avatar.ionic.png'"
+            [alt]="user.prenom"
+            class="profile-avatar-img"
+            onerror="this.src='https://ionicframework.com/docs/img/demos/avatar.ionic.png'" />
+
+          <!-- Bouton caméra flottant violet -->
+          <button class="camera-badge-btn" type="button" (click)="updatePhoto()" title="Changer de photo">
+            <ion-icon name="camera-outline"></ion-icon>
+          </button>
+        </div>
+
+        <h1 class="user-display-name">{{ user.prenom }} {{ user.nom }}</h1>
+        
+        <!-- Badge Rôle Administrateur -->
+        <div class="admin-role-badge">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>ADMINISTRATEUR SYSTÈME</span>
+        </div>
+      </div>
+
+      <!-- Bloc Statistiques Globales (3 Colonnes) -->
+      <div class="stats-card">
+        <div class="stat-col">
+          <span class="stat-number">{{ totalMoviesCount }}</span>
+          <span class="stat-label">Films</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-col">
+          <span class="stat-number">{{ totalUsersCount }}</span>
+          <span class="stat-label">Membres</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-col">
+          <span class="stat-number">{{ activeUsersCount }}</span>
+          <span class="stat-label">Actifs</span>
+        </div>
+      </div>
+
+      <!-- Bloc Informations du Compte -->
+      <div class="info-section">
+        <h3 class="section-title">Informations du compte</h3>
+
+        <!-- Adresse Email -->
+        <div class="info-card">
+          <div class="icon-box-purple">
+            <ion-icon name="mail-outline"></ion-icon>
+          </div>
+          <div class="info-text">
+            <span class="info-label">Adresse email</span>
+            <span class="info-value">{{ user.email }}</span>
+          </div>
+        </div>
+
+        <!-- Niveau d'Accès -->
+        <div class="info-card">
+          <div class="icon-box-purple">
+            <ion-icon name="key-outline"></ion-icon>
+          </div>
+          <div class="info-text">
+            <span class="info-label">Privilèges & Accès</span>
+            <span class="info-value">Accès complet (Films, TMDB, Utilisateurs)</span>
+          </div>
+        </div>
+
+        <!-- Statut de sécurité -->
+        <div class="info-card">
+          <div class="icon-box-green">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </div>
+          <div class="info-text">
+            <span class="info-label">Statut du compte</span>
+            <span class="info-value verified-text">Vérifié & Opérationnel</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grand Bouton de Déconnexion -->
+      <button class="logout-btn-card" type="button" (click)="onLogout()">
+        <ion-icon name="log-out-outline" class="logout-icon"></ion-icon>
+        <span>Se déconnecter</span>
+      </button>
+
+    </main>
+
+  </div>
+</ion-content>
+
+<ion-loading [isOpen]="isLoading" message="Mise à jour en cours..."></ion-loading>
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3000" (didDismiss)="isToastOpen = false"></ion-toast>

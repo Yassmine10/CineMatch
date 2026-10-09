@@ -1,0 +1,186 @@
+.splash-content {
+  --background: #0d0a1a;
+  --overflow: hidden;
+}
+
+.splash-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 24px 32px 24px;
+  background: radial-gradient(circle at 50% 35%, #1d143a 0%, #0d0a1a 75%);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Cercles décoratifs d'arrière-plan */
+.bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.bg-circle-top {
+  width: 380px;
+  height: 380px;
+  top: -80px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(124, 77, 255, 0.08) 0%, transparent 70%);
+}
+
+.bg-circle-bottom {
+  width: 320px;
+  height: 320px;
+  bottom: 80px;
+  left: -80px;
+}
+
+/* Bloc central */
+.center-block {
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 2;
+}
+
+/* Sphère / Mascotte Logo */
+.logo-orb {
+  position: relative;
+  width: 115px;
+  height: 115px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #8c52ff 0%, #5e17eb 100%);
+  box-shadow: 0 10px 30px rgba(124, 77, 255, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  animation: floatOrb 3s ease-in-out infinite alternate;
+
+  .orb-heart {
+    font-size: 26px;
+    color: #ffb703;
+    filter: drop-shadow(0 2px 8px rgba(255, 183, 3, 0.6));
+    z-index: 2;
+  }
+
+  .orb-dot {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #1a102f;
+  }
+
+  .dot-top {
+    top: 18px;
+    left: calc(50% - 7.5px);
+  }
+
+  .dot-left {
+    bottom: 24px;
+    left: 20px;
+  }
+
+  .dot-right {
+    bottom: 24px;
+    right: 20px;
+  }
+}
+
+@keyframes floatOrb {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  100% {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+/* Titre */
+.brand-title {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+
+  .cine-part {
+    color: #ffffff;
+  }
+
+  .match-part {
+    background: linear-gradient(135deg, #ffb703 0%, #fb8500 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Slogan */
+.brand-slogan {
+  color: #9fa8da;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 400;
+  max-width: 260px;
+}
+
+/* Bloc inférieur */
+.bottom-block {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 2;
+  margin-bottom: 8px;
+}
+
+/* Bouton "Commencer >" */
+.commencer-btn {
+  width: 100%;
+  height: 54px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(124, 77, 255, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 14px rgba(124, 77, 255, 0.3);
+  }
+
+  ion-icon {
+    font-size: 18px;
+    stroke-width: 28;
+  }
+}
+
+.appuie-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  color: #534b75;
+  text-transform: uppercase;
+}

@@ -1,0 +1,83 @@
+<ion-content [fullscreen]="true" class="profile-content">
+
+  <!-- Bouton retour -->
+  <button class="btn-back" (click)="goBack()">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+  </button>
+
+  <!-- ── LOADING ─────────────────────────────────────── -->
+  <div class="loading-wrap" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- ── CONTENU ────────────────────────────────────── -->
+  <ng-container *ngIf="!isLoading && matchUser">
+
+    <!-- Hero avatar + infos -->
+    <div class="hero-section">
+      <div class="avatar-wrap">
+        <ng-container *ngIf="matchUser.photo; else initials">
+          <img [src]="matchUser.photo" class="avatar-img" (error)="onPosterError($event)" alt="photo" />
+        </ng-container>
+        <ng-template #initials>
+          <div class="avatar-initials">{{ getInitials(matchUser) }}</div>
+        </ng-template>
+      </div>
+
+      <h1 class="user-name">{{ matchUser.prenom }} {{ matchUser.nom }}</h1>
+      <p class="user-age" *ngIf="matchUser.age">{{ matchUser.age }} ans</p>
+
+      <div class="stats-row">
+        <div class="stat-pill">
+          <ion-icon name="film-outline"></ion-icon>
+          {{ userMovies.length }} film{{ userMovies.length > 1 ? 's' : '' }} en playlist
+        </div>
+        <div class="stat-pill common">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          {{ commonMovieIds.size }} en commun
+        </div>
+      </div>
+    </div>
+
+    <!-- Section films favoris -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-kicker">SA PLAYLIST</span>
+        <h2 class="section-title">Films favoris</h2>
+        <p class="section-hint">
+          <span class="dot-common"></span> Films que vous avez en commun
+        </p>
+      </div>
+
+      <!-- Grille de films -->
+      <div class="movies-grid" *ngIf="userMovies.length > 0; else noMovies">
+        <div
+          class="movie-card"
+          [class.is-common]="isCommon(movie.id)"
+          *ngFor="let movie of userMovies"
+        >
+          <div class="poster-wrap">
+            <img
+              [src]="movie.posterUrl"
+              [alt]="movie.title"
+              class="poster"
+              (error)="onPosterError($event)"
+            />
+            <!-- Badge "en commun" -->
+            <div class="common-badge" *ngIf="isCommon(movie.id)">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </div>
+          </div>
+          <p class="movie-title">{{ movie.title }}</p>
+          <p class="movie-year">{{ movie.year }}</p>
+        </div>
+      </div>
+
+      <ng-template #noMovies>
+        <p class="no-movies">Cet utilisateur n'a pas encore de films en playlist.</p>
+      </ng-template>
+    </div>
+
+  </ng-container>
+
+</ion-content>

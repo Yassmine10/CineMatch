@@ -1,0 +1,125 @@
+<ion-content class="admin-users-content" [fullscreen]="true">
+  <div class="page-container">
+
+    <!-- Header supérieur avec Logo et Badge Admin -->
+    <header class="top-nav">
+      <div class="nav-logo">
+        <div class="logo-orb-small">
+          <div class="orb-dot dot-top"></div>
+          <div class="orb-heart">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="orb-dot dot-left"></div>
+          <div class="orb-dot dot-right"></div>
+        </div>
+        <span class="logo-text">
+          <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+          <span class="page-name-title">Utilisateurs</span>
+        </span>
+      </div>
+
+      <button class="admin-badge-btn" (click)="goTo('/admin/profile')" type="button" title="Voir mon profil admin">
+        <span>{{ adminInitials }}</span>
+      </button>
+    </header>
+
+    <!-- Corps principal -->
+    <main class="main-body">
+
+      <!-- Kicker Espace Administrateur -->
+      <div class="hero-section">
+        <span class="kicker-purple">ESPACE ADMINISTRATEUR</span>
+      </div>
+
+      <!-- Barre de recherche -->
+      <div class="search-box">
+        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()"
+          placeholder="Nom ou adresse email..."
+          class="search-input" />
+      </div>
+
+      <!-- Filtres Horizontaux (Tous, Actifs, Désactivés) -->
+      <div class="filter-pills-row">
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="selectedFilter === 'all'"
+          (click)="setFilter('all')">
+          Tous {{ totalUsersCount }}
+        </button>
+
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="selectedFilter === 'active'"
+          (click)="setFilter('active')">
+          Actifs
+        </button>
+
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="selectedFilter === 'inactive'"
+          (click)="setFilter('inactive')">
+          Désactivés
+        </button>
+      </div>
+
+      <!-- Spinner pendant le chargement -->
+      <div *ngIf="isLoading" class="state-container ion-text-center">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Chargement des utilisateurs...</p>
+      </div>
+
+      <!-- État aucun utilisateur -->
+      <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state ion-text-center">
+        <p>Aucun utilisateur trouvé.</p>
+      </div>
+
+      <!-- Liste des cartes utilisateurs -->
+      <div *ngIf="!isLoading && filteredUsers.length > 0" class="users-list">
+        <div *ngFor="let user of filteredUsers" class="user-card">
+
+          <!-- Avatar -->
+          <div class="user-avatar-wrap">
+            <img
+              [src]="user.photo || 'https://ionicframework.com/docs/img/demos/avatar.ionic.png'"
+              [alt]="user.nom"
+              onerror="this.src='https://ionicframework.com/docs/img/demos/avatar.ionic.png'" />
+          </div>
+
+          <!-- Informations Utilisateur -->
+          <div class="user-info">
+            <h3 class="user-name">{{ user.prenom }} {{ user.nom }}</h3>
+            <p class="user-email">{{ user.email }}</p>
+            <div
+              class="status-badge"
+              [class.is-active]="user.active !== false"
+              [class.is-inactive]="user.active === false">
+              <span class="status-dot"></span>
+              <span>{{ user.active !== false ? 'Actif' : 'Désactivé' }}</span>
+            </div>
+          </div>
+
+          <!-- Toggle switch Activation / Désactivation -->
+          <div class="user-toggle-wrap">
+            <ion-toggle
+              [checked]="user.active !== false"
+              (ionChange)="onToggleActive(user, $event)"
+              class="admin-user-toggle">
+            </ion-toggle>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+</ion-content>
+
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3000" (didDismiss)="isToastOpen = false"></ion-toast>
