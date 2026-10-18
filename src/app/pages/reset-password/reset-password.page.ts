@@ -48,10 +48,17 @@ export class ResetPasswordPage implements OnInit {
   }
 
   async ngOnInit() {
-    // Extract oobCode from query parameters
+    // Extract oobCode from query parameters (search or hash)
     const urlParams = new URLSearchParams(window.location.search);
-    this.oobCode = this.route.snapshot.queryParamMap.get('oobCode') ||
-                   urlParams.get('oobCode');
+    let code = this.route.snapshot.queryParamMap.get('oobCode') || urlParams.get('oobCode');
+
+    if (!code && window.location.hash.includes('?')) {
+      const hashQuery = window.location.hash.split('?')[1];
+      const hashParams = new URLSearchParams(hashQuery);
+      code = hashParams.get('oobCode');
+    }
+
+    this.oobCode = code;
 
     if (!this.oobCode) {
       this.isVerifyingCode = false;
