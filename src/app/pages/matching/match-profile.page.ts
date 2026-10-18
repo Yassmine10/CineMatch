@@ -20,17 +20,11 @@ import { combineLatest } from 'rxjs';
   imports: [CommonModule, IonContent, IonIcon]
 })
 export class MatchProfilePage implements OnInit {
-  /** Utilisateur dont on consulte le profil */
   matchUser: UserProfile | null = null;
-  /** Utilisateur courant connecté */
   currentUser: UserProfile | null = null;
-  /** Tous les films du catalogue */
   allMovies: Movie[] = [];
-  /** Films favoris du matchUser (objets complets) */
   userMovies: Movie[] = [];
-  /** Ids des films en commun (pré-calculé depuis la navigation state ou recalculé) */
   commonMovieIds: Set<string> = new Set();
-
   isLoading = true;
 
   constructor(
@@ -44,7 +38,6 @@ export class MatchProfilePage implements OnInit {
   ) {
     addIcons({ arrowBackOutline, filmOutline, checkmarkCircleOutline });
 
-    // Récupérer le state passé depuis la page matching (optionnel)
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as { match?: MatchResult } | undefined;
     if (state?.match) {
@@ -71,7 +64,6 @@ export class MatchProfilePage implements OnInit {
       this.currentUser = currentUser;
       this.allMovies = allMovies;
 
-      // Si allUsers est encore vide (chargement en cours), ne pas éjecter l'utilisateur
       if (allUsers.length === 0 && !this.matchUser) {
         return;
       }
@@ -85,7 +77,6 @@ export class MatchProfilePage implements OnInit {
       }
       this.matchUser = found;
 
-      // Si les commonMovieIds ne viennent pas du state, les recalculer
       if (this.commonMovieIds.size === 0 && currentUser?.favorites?.length) {
         const ids = this.matchingService.getCommonMovies(
           currentUser.favorites,
@@ -94,7 +85,6 @@ export class MatchProfilePage implements OnInit {
         this.commonMovieIds = new Set(ids);
       }
 
-      // Résoudre les films favoris de matchUser en objets complets (avec fallback propre)
       this.userMovies = (found.favorites || [])
         .map(id => {
           const m = allMovies.find(movie => movie.id === id);
@@ -103,7 +93,7 @@ export class MatchProfilePage implements OnInit {
             id,
             title: `Film (${id})`,
             year: '',
-            genre: 'Favori',
+            genre: 'Favorite',
             overview: '',
             posterUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&q=60',
             rating: 8.0,

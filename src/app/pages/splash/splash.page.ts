@@ -17,6 +17,13 @@ export class SplashPage {
     addIcons({ chevronForwardOutline, heart });
   }
 
+  ngOnInit() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'resetPassword' || params.has('oobCode')) {
+      this.router.navigate(['/reset-password'], { queryParamsHandling: 'preserve' });
+    }
+  }
+
   onGetStarted() {
     localStorage.setItem('cinematch_has_seen_splash', 'true');
     this.router.navigate(['/login']);

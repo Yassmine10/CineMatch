@@ -73,11 +73,14 @@ export class MovieDetailPage implements OnInit {
     if (!this.movie || !this.currentUser) return;
 
     if (this.isFavorite()) {
+      this.currentUser.favorites = (this.currentUser.favorites || []).filter(id => id !== this.movie!.id);
+      this.cdr.detectChanges();
       await this.userService.removeFavorite(this.currentUser.uid, this.movie.id);
     } else {
+      this.currentUser.favorites = [...(this.currentUser.favorites || []), this.movie.id];
+      this.cdr.detectChanges();
       await this.userService.addFavorite(this.currentUser.uid, this.movie.id);
     }
-    this.cdr.detectChanges();
   }
 
   get movieTags(): string[] {

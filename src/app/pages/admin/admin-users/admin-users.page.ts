@@ -125,11 +125,11 @@ export class AdminUsersPage implements OnInit {
     user.active = newStatus;
     try {
       await this.userService.toggleUserActive(user.uid, newStatus);
-      this.showToast(`${user.prenom} ${user.nom} : compte ${newStatus ? 'activé' : 'désactivé'}`);
+      this.showToast(`${user.prenom} ${user.nom}: account ${newStatus ? 'activated' : 'deactivated'}`);
     } catch (err: any) {
       // Revert en cas d'erreur
       user.active = !newStatus;
-      this.showToast('Erreur lors de la mise à jour du statut.');
+      this.showToast('Error updating account status.');
     }
     this.applyFilter();
     this.cdr.detectChanges();

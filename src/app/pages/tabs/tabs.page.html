@@ -1,23 +1,80 @@
 <ion-tabs>
-  <ion-tab-bar slot="bottom" class="custom-tab-bar">
-    <ion-tab-button tab="movies" href="/tabs/movies">
-      <ion-icon name="home-outline"></ion-icon>
-      <ion-label>Films</ion-label>
-    </ion-tab-button>
+  <ion-tab-bar slot="bottom" class="custom-tab-bar" [class.custom-admin-tab-bar]="isAdmin">
 
-    <ion-tab-button tab="playlist" href="/tabs/playlist">
-      <ion-icon name="heart-outline"></ion-icon>
-      <ion-label>Ma playlist</ion-label>
-    </ion-tab-button>
+    <!-- Desktop Sidebar Brand Header: Original Purple Logo -->
+    <div class="sidebar-brand-header">
+      <div class="nav-logo">
+        <div class="logo-orb-small">
+          <div class="orb-dot dot-top"></div>
+          <div class="orb-heart">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="orb-dot dot-left"></div>
+          <div class="orb-dot dot-right"></div>
+        </div>
+        <span class="logo-text">
+          <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+        </span>
+      </div>
+    </div>
 
-    <ion-tab-button tab="matching" href="/tabs/matching">
-      <ion-icon name="people-outline"></ion-icon>
-      <ion-label>Matching</ion-label>
-    </ion-tab-button>
+    <!-- ============================================== -->
+    <!-- NAVIGATION TABS: ADMIN ROLE                    -->
+    <!-- ============================================== -->
+    <ng-container *ngIf="isAdmin">
+      <ion-tab-button tab="dashboard" href="/tabs/dashboard">
+        <ion-icon name="grid-outline"></ion-icon>
+        <ion-label>Dashboard</ion-label>
+      </ion-tab-button>
 
-    <ion-tab-button tab="profile" href="/tabs/profile">
-      <ion-icon name="person-outline"></ion-icon>
-      <ion-label>Profil</ion-label>
-    </ion-tab-button>
+      <ion-tab-button tab="movies" href="/tabs/movies">
+        <ion-icon name="film-outline"></ion-icon>
+        <ion-label>Movies</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="users" href="/tabs/users">
+        <ion-icon name="people-outline"></ion-icon>
+        <ion-label>Users</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="profile" href="/tabs/profile">
+        <ion-icon name="person-outline"></ion-icon>
+        <ion-label>Profile</ion-label>
+      </ion-tab-button>
+    </ng-container>
+
+    <!-- ============================================== -->
+    <!-- NAVIGATION TABS: USER ROLE                     -->
+    <!-- ============================================== -->
+    <ng-container *ngIf="!isAdmin">
+      <ion-tab-button tab="movies" href="/tabs/movies">
+        <ion-icon name="film-outline"></ion-icon>
+        <ion-label>Movies</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="playlist" href="/tabs/playlist">
+        <ion-icon name="heart-outline"></ion-icon>
+        <ion-label>My Playlist</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="matching" href="/tabs/matching">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        <ion-label>Matching</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="profile" href="/tabs/profile">
+        <ion-icon name="person-outline"></ion-icon>
+        <ion-label>Profile</ion-label>
+      </ion-tab-button>
+    </ng-container>
+
+    <!-- Desktop Sidebar Footer -->
+    <div class="sidebar-footer-info">
+      <div class="footer-badge">
+        <span class="live-dot" [class.admin-dot]="isAdmin"></span>
+        <span>{{ isAdmin ? 'Admin Mode Active' : 'CinéMatch Connected' }}</span>
+      </div>
+    </div>
+
   </ion-tab-bar>
 </ion-tabs>

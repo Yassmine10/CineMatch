@@ -3,8 +3,6 @@ import { MatchingService, MATCH_THRESHOLD } from './matching.service';
 import { UserProfile } from '../models/user.model';
 import { Movie } from '../models/movie.model';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
 function makeUser(uid: string, favorites: string[], active = true, role: 'user' | 'admin' = 'user'): UserProfile {
   return {
     uid,
@@ -24,16 +22,12 @@ function makeMovie(id: string): Movie {
   return { id, title: `Film ${id}`, year: 2024, genre: 'Action', overview: '', posterUrl: '', rating: 7, source: 'admin' };
 }
 
-// ─── Tests ──────────────────────────────────────────────────────────────────
-
 describe('MatchingService', () => {
   let service: MatchingService;
 
   beforeEach(() => {
     service = new MatchingService();
   });
-
-  // ── calculateSimilarity ──────────────────────────────────────────────────
 
   it('listes identiques → 100 %', () => {
     const ids = ['m1', 'm2', 'm3', 'm4'];
@@ -70,12 +64,8 @@ describe('MatchingService', () => {
   });
 
   it('doublons dans une liste → ignorés (dédoublonnage)', () => {
-    // A avec doublons = ['m1','m1','m2','m2'] → Set = {m1,m2}
-    // B = {m1,m2} → intersection=2, union=2 → 100 %
     expect(service.calculateSimilarity(['m1', 'm1', 'm2', 'm2'], ['m1', 'm2'])).toBe(100);
   });
-
-  // ── findMatches ──────────────────────────────────────────────────────────
 
   const myFavs = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'];
   const allMovies: Movie[] = ['m1','m2','m3','m4','m5','m6','m7','m8','m9','m10'].map(makeMovie);
@@ -120,9 +110,7 @@ describe('MatchingService', () => {
 
   it('tri décroissant par pourcentage', () => {
     const me = makeUser('me', ['m1','m2','m3','m4','m5','m6','m7','m8']);
-    // userA = 100 % : mêmes 8 films, union=8, intersection=8
     const userA = makeUser('userA', ['m1','m2','m3','m4','m5','m6','m7','m8']);
-    // userB ≈ 88.9 % : 8 films communs, union=9
     const userB = makeUser('userB', ['m1','m2','m3','m4','m5','m6','m7','m8','m9']);
     const results = service.findMatches(me, [me, userB, userA], allMovies);
     expect(results[0].user.uid).toBe('userA');

@@ -8,13 +8,7 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 
-import { defineCustomElements } from '@ionic/pwa-elements/loader';
-
-// Initialisation globale de l'application Firebase avant tout injection de service
 initializeApp(environment.firebase);
-
-// Activer le support de la caméra web et PWA pour le navigateur
-defineCustomElements(window);
 
 bootstrapApplication(AppComponent, {
   providers: [

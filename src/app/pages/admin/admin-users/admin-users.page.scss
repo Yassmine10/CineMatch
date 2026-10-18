@@ -111,6 +111,20 @@
     letter-spacing: 1.2px;
     text-transform: uppercase;
   }
+
+  .page-main-heading {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 800;
+    margin: 4px 0 0 0;
+    letter-spacing: -0.3px;
+  }
+
+  .page-subheading {
+    color: #8f8fa3;
+    font-size: 13px;
+    margin: 2px 0 0 0;
+  }
 }
 
 /* Barre de recherche */
@@ -310,3 +324,24 @@
   padding: 40px 0;
   color: #716d8a;
 }
+
+/* Responsive Desktop Layout */
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 1000px;
+    padding: 32px 32px 120px 32px;
+  }
+
+  .users-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .users-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+

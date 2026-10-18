@@ -1,7 +1,7 @@
 <ion-content class="dashboard-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Header supérieur avec Logo et Badge Admin -->
+    <!-- Top Navigation Header -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -14,94 +14,90 @@
         </div>
         <span class="logo-text">
           <span class="white-text">Ciné</span><span class="orange-text">Match</span>
-          <span class="page-name-title">Tableau de bord</span>
+          <span class="page-name-title">Dashboard</span>
         </span>
       </div>
 
-      <!-- Badge initiales Admin (cliquable vers le profil admin) -->
-      <button class="admin-badge-btn" (click)="goTo('/admin/profile')" type="button" title="Voir mon profil admin">
+      <!-- Admin Initials Badge -->
+      <button class="admin-badge-btn" (click)="goTo('/tabs/profile')" type="button" title="View Admin Profile">
         <span>{{ adminInitials }}</span>
       </button>
     </header>
 
-    <!-- Corps du Dashboard -->
+    <!-- Main Content -->
     <main class="main-body">
 
-      <!-- Titres & Kickers -->
+      <!-- Hero Section -->
       <section class="hero-section">
-        <span class="kicker-purple">ESPACE ADMINISTRATEUR</span>
-        <span class="kicker-gold">VUE D'ENSEMBLE</span>
-        <h1 class="hero-title">Bonjour, {{ currentUser?.prenom || 'Admin' }}</h1>
-        <p class="hero-subtitle">Voici ce qui se passe sur CinéMatch aujourd'hui.</p>
+        <span class="kicker-purple">ADMINISTRATION PORTAL</span>
+        <span class="kicker-gold">OVERVIEW</span>
+        <h1 class="hero-title">Welcome, {{ currentUser?.prenom || 'Admin' }}</h1>
+        <p class="hero-subtitle">Here is what is happening across CinéMatch today.</p>
       </section>
 
-      <!-- Grille des statistiques (KPIs) -->
+      <!-- KPI Stats Section -->
       <section class="kpi-section">
 
-        <div class="kpi-row-2col">
-          <!-- Carte KPI Films -->
-          <div class="kpi-card" (click)="goTo('/admin/movies')">
-            <div class="kpi-icon-square gold-square">
+        <div class="kpi-grid-3col">
+          <!-- KPI Movies -->
+          <div class="kpi-card" (click)="goTo('/tabs/movies')">
+            <div class="kpi-icon-square purple-square">
               <ion-icon name="film-outline"></ion-icon>
             </div>
-            <span class="kpi-label">Films</span>
+            <span class="kpi-label">Movies</span>
             <span class="kpi-value">{{ totalMoviesCount }}</span>
-            <span class="kpi-growth">+12 ce mois</span>
+            <span class="kpi-growth">In Catalog</span>
           </div>
 
-          <!-- Carte KPI Utilisateurs -->
-          <div class="kpi-card" (click)="goTo('/admin/users')">
+          <!-- KPI Users -->
+          <div class="kpi-card" (click)="goTo('/tabs/users')">
             <div class="kpi-icon-square purple-square">
               <ion-icon name="people-outline"></ion-icon>
             </div>
-            <span class="kpi-label">Utilisateurs</span>
+            <span class="kpi-label">Registered Users</span>
             <span class="kpi-value">{{ totalUsersCount }}</span>
-            <span class="kpi-growth">+8,4 %</span>
+            <span class="kpi-growth">Active community</span>
           </div>
-        </div>
 
-        <!-- Carte KPI Utilisateurs Actifs (Pleine largeur) -->
-        <div class="kpi-card-wide" (click)="goTo('/admin/users')">
-          <div class="left-box">
-            <div class="kpi-icon-square purple-square check-square">
+          <!-- KPI Active Accounts (Same uniform size and design) -->
+          <div class="kpi-card" (click)="goTo('/tabs/users')">
+            <div class="kpi-icon-square purple-square">
               <ion-icon name="checkmark-outline"></ion-icon>
             </div>
-            <div class="text-group">
-              <span class="kpi-label-wide">Utilisateurs actifs</span>
-              <span class="kpi-growth-wide">{{ activePercentage }} % de la communauté</span>
-            </div>
+            <span class="kpi-label">Active Accounts</span>
+            <span class="kpi-value">{{ activeUsersCount }}</span>
+            <span class="kpi-growth">{{ activePercentage }}% in good standing</span>
           </div>
-          <span class="kpi-value-wide">{{ activeUsersCount }}</span>
         </div>
 
       </section>
 
-      <!-- Section Accès Rapide -->
+      <!-- Quick Actions Section -->
       <section class="quick-access-section">
-        <h2 class="section-title">Accès rapide</h2>
+        <h2 class="section-title">Quick Actions</h2>
 
         <div class="access-cards-list">
 
-          <!-- Raccourci Gérer les films -->
-          <div class="access-card" (click)="goTo('/admin/movies')">
+          <!-- Shortcut Manage Movies -->
+          <div class="access-card" (click)="goTo('/tabs/movies')">
             <div class="access-icon-box purple-bg">
               <ion-icon name="film-outline"></ion-icon>
             </div>
             <div class="access-text">
-              <h3 class="card-title">Gérer les films</h3>
-              <p class="card-subtitle">Ajouter et modifier le catalogue</p>
+              <h3 class="card-title">Manage Movies</h3>
+              <p class="card-subtitle">Add, edit, or delete catalog movies</p>
             </div>
             <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
           </div>
 
-          <!-- Raccourci Gérer les utilisateurs -->
-          <div class="access-card" (click)="goTo('/admin/users')">
+          <!-- Shortcut Manage Users -->
+          <div class="access-card" (click)="goTo('/tabs/users')">
             <div class="access-icon-box gold-bg">
               <ion-icon name="people-outline"></ion-icon>
             </div>
             <div class="access-text">
-              <h3 class="card-title">Gérer les utilisateurs</h3>
-              <p class="card-subtitle">Consulter et gérer les accès</p>
+              <h3 class="card-title">Manage Users</h3>
+              <p class="card-subtitle">Review users and enable/disable access</p>
             </div>
             <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
           </div>

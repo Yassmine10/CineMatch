@@ -79,7 +79,6 @@ export class AuthService {
       let profile: UserProfile;
 
       if (!snap.exists()) {
-        // Profil Firestore absent → le créer automatiquement (compte créé via console Firebase)
         profile = {
           uid: creds.user.uid,
           email: creds.user.email || email,
@@ -95,13 +94,13 @@ export class AuthService {
         await setDoc(userDocRef, profile);
       } else {
         const raw = snap.data() as UserProfile;
-        // Nettoyer les espaces éventuels sur le rôle
+
         profile = { ...raw, role: (raw.role as string)?.trim() as 'admin' | 'user' };
       }
 
       if (profile.active === false) {
         await signOut(auth);
-        throw new Error("Votre compte a été désactivé par l'administrateur.");
+        throw new Error("Account Suspended: Your account has been deactivated by an administrator. Please contact support.");
       }
 
       this.currentUserSubject.next(profile);
@@ -117,7 +116,7 @@ export class AuthService {
         'auth/invalid-login-credentials'
       ];
       if (authErrors.includes(err.code) || err.status === 400) {
-        throw new Error('Email ou mot de passe incorrect.');
+        throw new Error('Incorrect email address or password.');
       }
       throw err;
     }
@@ -126,14 +125,18 @@ export class AuthService {
   async resetPassword(email: string): Promise<void> {
     const auth = getAuth();
     try {
-      await sendPasswordResetEmail(auth, email);
+      const actionCodeSettings = {
+        url: `${window.location.origin}/reset-password`,
+        handleCodeInApp: true
+      };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
     } catch (err: any) {
       if (err.code === 'auth/user-not-found') {
-        throw new Error('Aucun compte n\'est associé à cet email.');
+        throw new Error('No account found with this email address.');
       } else if (err.code === 'auth/invalid-email') {
-        throw new Error('Adresse email invalide.');
+        throw new Error('Please enter a valid email address.');
       }
-      throw new Error(err.message || 'Erreur lors de l\'envoi de l\'email de réinitialisation.');
+      throw new Error(err.message || 'Error sending password reset email.');
     }
   }
 

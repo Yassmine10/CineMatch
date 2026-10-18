@@ -146,23 +146,34 @@
   flex-direction: column;
   gap: 14px;
 
-  .kpi-row-2col {
+  .kpi-grid-3col {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 14px;
+
+    @media (min-width: 550px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      gap: 20px;
+    }
   }
 
   .kpi-card {
     background: #181528;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
-    padding: 18px 16px;
+    padding: 20px 18px;
     display: flex;
     flex-direction: column;
     gap: 6px;
     cursor: pointer;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     transition: transform 0.2s ease, border-color 0.2s ease;
+    height: 100%;
+    box-sizing: border-box;
 
     &:hover {
       border-color: rgba(124, 77, 255, 0.35);
@@ -179,11 +190,6 @@
       font-size: 22px;
       margin-bottom: 4px;
 
-      &.gold-square {
-        background: rgba(255, 183, 3, 0.15);
-        color: #ffb703;
-      }
-
       &.purple-square {
         background: rgba(124, 77, 255, 0.15);
         color: #a855f7;
@@ -198,77 +204,17 @@
 
     .kpi-value {
       color: #ffffff;
-      font-size: 30px;
+      font-size: 32px;
       font-weight: 800;
       line-height: 1.1;
+      margin: 4px 0;
     }
 
     .kpi-growth {
       color: #2dd36f;
       font-size: 12px;
       font-weight: 700;
-      margin-top: 2px;
-    }
-  }
-
-  /* Carte pleine largeur */
-  .kpi-card-wide {
-    background: #181528;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 18px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease, border-color 0.2s ease;
-
-    &:hover {
-      border-color: rgba(124, 77, 255, 0.35);
-    }
-
-    .left-box {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-
-      .check-square {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        background: rgba(124, 77, 255, 0.15);
-        color: #a855f7;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        flex-shrink: 0;
-      }
-
-      .text-group {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        .kpi-label-wide {
-          color: #8f8fa3;
-          font-size: 13px;
-          font-weight: 600;
-        }
-
-        .kpi-growth-wide {
-          color: #2dd36f;
-          font-size: 12px;
-          font-weight: 700;
-        }
-      }
-    }
-
-    .kpi-value-wide {
-      color: #ffffff;
-      font-size: 30px;
-      font-weight: 800;
+      margin-top: auto;
     }
   }
 }
@@ -351,5 +297,37 @@
       color: #716d8a;
       font-size: 18px;
     }
+  }
+}
+
+/* Responsive Desktop Layout */
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 900px;
+    padding: 32px 32px 120px 32px;
+  }
+
+  .kpi-section {
+    width: 100%;
+
+    .kpi-grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .kpi-card {
+      height: 100%;
+      min-height: 160px;
+      margin: 0;
+      box-sizing: border-box;
+    }
+  }
+
+  .quick-access-section .access-cards-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 }

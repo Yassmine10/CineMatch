@@ -1,13 +1,13 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBmW-kIy_6JfFJ5hZFCaz7_V-t2BQcGmQc",
-    authDomain: "cinematch-f581c.firebaseapp.com",
-    projectId: "cinematch-f581c",
-    storageBucket: "cinematch-f581c.firebasestorage.app",
-    messagingSenderId: "818671630927",
-    appId: "1:818671630927:web:7ce6ef70784dbc2a1f883a",
-    measurementId: "G-YSMN4D42KT"
+    apiKey: "AIzaSyAppfArOtAcnGi1QOnTE6piPdUhaxaX3Og",
+    authDomain: "cinematch-app-90338.firebaseapp.com",
+    projectId: "cinematch-app-90338",
+    storageBucket: "cinematch-app-90338.firebasestorage.app",
+    messagingSenderId: "770923993773",
+    appId: "1:770923993773:web:7f45b8bfbaf50c14c88424",
+    measurementId: "G-S7Q9ZKFHE3"
   },
   tmdbApiKey: "82164ac6634b4e2d288bdc5fdfcec5c5",
   tmdbBaseUrl: "https://api.themoviedb.org/3",
