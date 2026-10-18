@@ -125,11 +125,7 @@ export class AuthService {
   async resetPassword(email: string): Promise<void> {
     const auth = getAuth();
     try {
-      const actionCodeSettings = {
-        url: `${window.location.origin}/reset-password`,
-        handleCodeInApp: true
-      };
-      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      await sendPasswordResetEmail(auth, email);
     } catch (err: any) {
       if (err.code === 'auth/user-not-found') {
         throw new Error('No account found with this email address.');

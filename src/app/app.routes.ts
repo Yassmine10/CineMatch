@@ -20,14 +20,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/forgot-password/forgot-password.page').then(m => m.ForgotPasswordPage)
   },
   {
-    path: 'reset-password',
-    loadComponent: () => import('./pages/reset-password/reset-password.page').then(m => m.ResetPasswordPage)
-  },
-  {
-    path: '__/auth/action',
-    loadComponent: () => import('./pages/reset-password/reset-password.page').then(m => m.ResetPasswordPage)
-  },
-  {
     path: 'movie-detail/:id',
     loadComponent: () => import('./pages/movie-detail/movie-detail.page').then(m => m.MovieDetailPage),
     canActivate: [AuthGuard]
