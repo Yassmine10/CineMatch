@@ -5,10 +5,10 @@ export interface UserProfile {
   age: number;
   email: string;
   phoneNumber?: string;
-  photo: string; // Base64 or URL
+  photo: string; 
   role: 'user' | 'admin';
   active: boolean;
-  favorites: string[]; // List of movie IDs
+  favorites: string[]; 
   createdAt: string;
 }
 

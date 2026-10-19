@@ -1,19 +1,15 @@
 <ion-content [fullscreen]="true" class="profile-content">
 
-  <!-- Bouton retour -->
   <button class="btn-back" (click)="goBack()">
     <ion-icon name="arrow-back-outline"></ion-icon>
   </button>
 
-  <!-- ── LOADING ─────────────────────────────────────── -->
   <div class="loading-wrap" *ngIf="isLoading">
     <div class="spinner"></div>
   </div>
 
-  <!-- ── CONTENU ────────────────────────────────────── -->
   <ng-container *ngIf="!isLoading && matchUser">
 
-    <!-- Hero avatar + infos -->
     <div class="hero-section">
       <div class="avatar-wrap">
         <ng-container *ngIf="matchUser.photo; else initials">
@@ -39,7 +35,6 @@
       </div>
     </div>
 
-    <!-- Favorite Movies Section -->
     <div class="section">
       <div class="section-header">
         <span class="section-kicker">THEIR PLAYLIST</span>
@@ -49,7 +44,6 @@
         </p>
       </div>
 
-      <!-- Movies Grid -->
       <div class="movies-grid" *ngIf="userMovies.length > 0; else noMovies">
         <div
           class="movie-card"
@@ -63,7 +57,7 @@
               class="poster"
               (error)="onPosterError($event)"
             />
-            <!-- Badge "in common" -->
+
             <div class="common-badge" *ngIf="isCommon(movie.id)">
               <ion-icon name="checkmark-circle-outline"></ion-icon>
             </div>

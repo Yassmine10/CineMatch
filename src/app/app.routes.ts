@@ -26,7 +26,7 @@ export const routes: Routes = [
   },
   {
     path: 'match-profile/:uid',
-    loadComponent: () => import('./pages/matching/match-profile.page').then(m => m.MatchProfilePage),
+    loadComponent: () => import('./pages/match-profile/match-profile.page').then(m => m.MatchProfilePage),
     canActivate: [AuthGuard]
   },
   {

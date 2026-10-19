@@ -103,12 +103,11 @@ export class AdminUsersPage implements OnInit {
     const q = this.searchQuery.trim().toLowerCase();
 
     this.filteredUsers = this.allUsers.filter(u => {
-      // 1. Filtrage statut (Actifs / Désactivés)
+
       const isActive = u.active !== false;
       if (this.selectedFilter === 'active' && !isActive) return false;
       if (this.selectedFilter === 'inactive' && isActive) return false;
 
-      // 2. Filtrage recherche (Nom, Prénom, Email)
       if (q.length > 0) {
         const fullName = `${u.prenom || ''} ${u.nom || ''}`.toLowerCase();
         const email = (u.email || '').toLowerCase();
@@ -121,7 +120,6 @@ export class AdminUsersPage implements OnInit {
 
   async onToggleActive(user: UserProfile, event: any) {
     const newStatus = event.detail.checked;
-    // Mise à jour optimiste locale
     user.active = newStatus;
     try {
       await this.userService.toggleUserActive(user.uid, newStatus);
