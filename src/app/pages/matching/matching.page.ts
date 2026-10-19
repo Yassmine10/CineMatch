@@ -41,7 +41,7 @@ export class MatchingPage implements OnInit, OnDestroy {
   isLoading = true;
   hasNoFavorites = false;
 
-  selectedFilter: MatchFilterType = 'all';
+  selectedFilter: MatchFilterType = 'super';
 
   private sub!: Subscription;
 

@@ -14,18 +14,17 @@
 
       <h1 class="page-title">Film Taste Soulmates</h1>
       <p class="subtitle">
-        Discover cinephiles who share your cinematic passion, ranked by real playlist affinity and common favorites.
+        Découvrez vos âmes sœurs cinéphiles ayant au moins 75% de films en commun dans leurs playlists de favoris.
       </p>
 
       <div class="filter-chips-row" *ngIf="!isLoading && !hasNoFavorites">
         <button
           type="button"
           class="filter-chip"
-          [class.active]="selectedFilter === 'all'"
-          (click)="setFilter('all')">
-          <ion-icon name="people-outline"></ion-icon>
-          <span>All Cinephiles</span>
-          <span class="chip-count">{{ allMatches.length }}</span>
+          [class.active]="selectedFilter === 'super'"
+          (click)="setFilter('super')">
+          <ion-icon name="flame-outline"></ion-icon>
+          <span>🔥 > 75% Matches (Exigence)</span>
         </button>
 
         <button
@@ -34,16 +33,17 @@
           [class.active]="selectedFilter === 'high'"
           (click)="setFilter('high')">
           <ion-icon name="star-outline"></ion-icon>
-          <span>50%+ High Affinity</span>
+          <span>50%+ Affinité</span>
         </button>
 
         <button
           type="button"
           class="filter-chip"
-          [class.active]="selectedFilter === 'super'"
-          (click)="setFilter('super')">
-          <ion-icon name="flame-outline"></ion-icon>
-          <span>75%+ Super Soulmates</span>
+          [class.active]="selectedFilter === 'all'"
+          (click)="setFilter('all')">
+          <ion-icon name="people-outline"></ion-icon>
+          <span>Tous les cinéphiles</span>
+          <span class="chip-count">{{ allMatches.length }}</span>
         </button>
       </div>
     </header>
