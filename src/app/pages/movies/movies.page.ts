@@ -43,15 +43,14 @@ export class MoviesPage implements OnInit {
   isAdmin = false;
   isLoading = true;
 
-  // Admin Modal: Add / Import Movie
+  //Add movie
   isAddModalOpen = false;
   modalTab: 'tmdb' | 'manual' = 'tmdb';
   modalSearchQuery = '';
   modalSearchResults: Movie[] = [];
   isModalSearching = false;
-  presetCatalog: Movie[] = [];
 
-  // Manual Add Form
+  // manual add 
   title = '';
   year: number | string | null = null;
   genre = '';
@@ -59,7 +58,7 @@ export class MoviesPage implements OnInit {
   posterUrl = '';
   rating: number | null = null;
 
-  // Admin Modal: Edit Movie
+  // edit movie
   isEditModalOpen = false;
   selectedMovieForEdit: Movie | null = null;
   editTitle = '';
@@ -69,11 +68,10 @@ export class MoviesPage implements OnInit {
   editPosterUrl = '';
   editRating: number | null = null;
 
-  // Admin Modal: Delete Movie
+  // delete movie
   isDeleteModalOpen = false;
   movieToDelete: Movie | null = null;
 
-  // UI feedback
   loadingMessage = 'Processing...';
   isActionLoading = false;
   toastMessage = '';
@@ -97,9 +95,6 @@ export class MoviesPage implements OnInit {
   }
 
   ngOnInit() {
-    this.presetCatalog = this.tmdbService.getPresetCatalog();
-    this.modalSearchResults = this.presetCatalog;
-
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.isAdmin = user?.role === 'admin';
@@ -113,7 +108,7 @@ export class MoviesPage implements OnInit {
       this.cdr.detectChanges();
     });
 
-    // Auto clean duplicates if admin
+    //delete duplicates
     this.movieService.removeFirestoreDuplicates().then(count => {
       if (count > 0) {
         console.log(`[Auto-Clean] ${count} duplicate movies cleaned.`);
@@ -174,7 +169,7 @@ export class MoviesPage implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // User Favorites Handling
+  // user Favorites
   isFavorite(movieId: string): boolean {
     return this.currentUser?.favorites?.includes(movieId) || false;
   }
@@ -194,12 +189,19 @@ export class MoviesPage implements OnInit {
     }
   }
 
-  // Admin Add / Import Modal
+  // Admin add
   openAddModal() {
     this.isAddModalOpen = true;
     this.modalSearchQuery = '';
-    this.modalSearchResults = this.presetCatalog;
+    this.modalSearchResults = [];
+    this.isModalSearching = true;
     this.cdr.detectChanges();
+
+    this.tmdbService.getPopularMovies().subscribe(results => {
+      this.modalSearchResults = results || [];
+      this.isModalSearching = false;
+      this.cdr.detectChanges();
+    });
   }
 
   closeAddModal() {
@@ -214,13 +216,18 @@ export class MoviesPage implements OnInit {
 
   onModalSearch() {
     if (!this.modalSearchQuery.trim()) {
-      this.modalSearchResults = this.presetCatalog;
+      this.isModalSearching = true;
+      this.tmdbService.getPopularMovies().subscribe(results => {
+        this.modalSearchResults = results || [];
+        this.isModalSearching = false;
+        this.cdr.detectChanges();
+      });
       return;
     }
     this.isModalSearching = true;
     this.tmdbService.searchMovies(this.modalSearchQuery).subscribe({
       next: (results) => {
-        this.modalSearchResults = results;
+        this.modalSearchResults = results || [];
         this.isModalSearching = false;
         this.cdr.detectChanges();
       },
@@ -251,7 +258,7 @@ export class MoviesPage implements OnInit {
         rating: movie.rating
       });
       this.isActionLoading = false;
-      this.showToast(`✅ "${movie.title}" imported successfully!`);
+      this.showToast(` "${movie.title}" imported successfully!`);
     } catch (err: any) {
       this.isActionLoading = false;
       this.showToast('Error importing movie.');
@@ -261,19 +268,26 @@ export class MoviesPage implements OnInit {
 
   async onImportAllPreset() {
     this.isActionLoading = true;
-    this.loadingMessage = 'Importing preset catalog...';
+    this.loadingMessage = 'Importing movies from TMDB API...';
     this.cdr.detectChanges();
 
-    try {
-      const count = await this.movieService.importMultipleMovies(this.presetCatalog);
-      this.isActionLoading = false;
-      this.isAddModalOpen = false;
-      this.showToast(`🎉 ${count} iconic movies imported successfully!`);
-    } catch (err: any) {
-      this.isActionLoading = false;
-      this.showToast('Error during batch import.');
-    }
-    this.cdr.detectChanges();
+    this.tmdbService.getPopularMovies().subscribe(async (popularMovies) => {
+      try {
+        if (popularMovies && popularMovies.length > 0) {
+          const count = await this.movieService.importMultipleMovies(popularMovies);
+          this.isActionLoading = false;
+          this.isAddModalOpen = false;
+          this.showToast(` ${count} movies imported from TMDB API!`);
+        } else {
+          this.isActionLoading = false;
+          this.showToast('No movies retrieved from TMDB.');
+        }
+      } catch (err: any) {
+        this.isActionLoading = false;
+        this.showToast('Error during batch import.');
+      }
+      this.cdr.detectChanges();
+    });
   }
 
   async onAddManualMovie() {
@@ -296,7 +310,7 @@ export class MoviesPage implements OnInit {
         rating: Number(this.rating)
       });
       this.isActionLoading = false;
-      this.showToast('✅ Movie created successfully!');
+      this.showToast(' Movie created successfully!');
       this.resetForm();
       this.isAddModalOpen = false;
     } catch (err: any) {
@@ -315,7 +329,7 @@ export class MoviesPage implements OnInit {
     this.rating = null;
   }
 
-  // Admin Edit Modal
+  // edit 
   openEditModal(movie: Movie, event: Event) {
     event.stopPropagation();
     this.selectedMovieForEdit = movie;
@@ -357,7 +371,7 @@ export class MoviesPage implements OnInit {
       });
       this.isActionLoading = false;
       this.isEditModalOpen = false;
-      this.showToast(`✅ "${this.editTitle}" updated successfully!`);
+      this.showToast(` "${this.editTitle}" updated successfully!`);
     } catch (err: any) {
       this.isActionLoading = false;
       this.showToast('Error updating movie.');
@@ -365,7 +379,7 @@ export class MoviesPage implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Admin Delete Modal
+  //delete
   openDeleteModal(movie: Movie, event: Event) {
     event.stopPropagation();
     this.movieToDelete = movie;
@@ -390,7 +404,7 @@ export class MoviesPage implements OnInit {
     try {
       await this.movieService.deleteMovie(movie.id);
       this.isActionLoading = false;
-      this.showToast(`🗑️ "${movie.title}" removed from catalog.`);
+      this.showToast(` "${movie.title}" removed from catalog.`);
     } catch (err: any) {
       this.isActionLoading = false;
       this.showToast('Error deleting movie.');
@@ -408,9 +422,9 @@ export class MoviesPage implements OnInit {
     try {
       const deleted = await this.movieService.removeFirestoreDuplicates();
       if (deleted > 0) {
-        this.showToast(`✨ ${deleted} duplicate movie(s) removed!`);
+        this.showToast(` ${deleted} duplicate movie(s) removed!`);
       } else {
-        this.showToast('✅ No duplicate movies detected.');
+        this.showToast(' No duplicate movies detected.');
       }
     } catch (err: any) {
       this.showToast('Error cleaning duplicate movies.');
@@ -420,7 +434,6 @@ export class MoviesPage implements OnInit {
     }
   }
 
-  // Navigation & Utilities
   openDetail(movie: Movie) {
     this.router.navigate(['/movie-detail', movie.id]);
   }

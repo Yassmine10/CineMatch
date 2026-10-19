@@ -1,7 +1,6 @@
 <ion-content class="movies-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Top Navigation Header -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -35,7 +34,6 @@
       </button>
     </header>
 
-    <!-- Hero Section (Adapts by Role) -->
     <section class="hero-section" [class.admin-hero]="isAdmin">
       <!-- Admin Hero -->
       <div *ngIf="isAdmin" class="hero-header-row">
@@ -57,7 +55,6 @@
         </div>
       </div>
 
-      <!-- User Hero -->
       <div *ngIf="!isAdmin">
         <span class="greeting-kicker">{{ greeting }}</span>
         <h1 class="hero-title">
@@ -67,7 +64,6 @@
       </div>
     </section>
 
-    <!-- Search Bar -->
     <div class="search-box">
       <ion-icon name="search-outline" class="search-icon"></ion-icon>
       <input
@@ -78,7 +74,6 @@
         class="search-input" />
     </div>
 
-    <!-- Category Filter Pills -->
     <div class="categories-scroll">
       <button
         *ngFor="let cat of categories"
@@ -90,25 +85,21 @@
       </button>
     </div>
 
-    <!-- Section Header -->
     <div class="section-header">
       <h2 class="section-title">{{ isAdmin ? 'Catalog List' : 'Discover Movies' }}</h2>
       <span class="movie-count">{{ filteredMovies.length }} movie{{ filteredMovies.length > 1 ? 's' : '' }}</span>
     </div>
 
-    <!-- Loading Spinner -->
     <div *ngIf="isLoading" class="state-container ion-text-center">
       <ion-spinner name="crescent" color="primary"></ion-spinner>
       <p>Loading movies catalog...</p>
     </div>
 
-    <!-- Empty State -->
     <div *ngIf="!isLoading && filteredMovies.length === 0" class="empty-state ion-text-center">
       <p>No movies found matching your search.</p>
       <small *ngIf="isAdmin">Click <strong>+ Add Movie</strong> above to import or create movies.</small>
     </div>
 
-    <!-- Responsive Movies Layout: List on Mobile, Cards Grid on Desktop -->
     <div *ngIf="!isLoading && filteredMovies.length > 0" class="movies-grid">
       <div
         *ngFor="let movie of filteredMovies"
@@ -116,7 +107,6 @@
         class="movie-item-card"
         [class.admin-card]="isAdmin">
 
-        <!-- Poster Thumbnail with Zoom & Rating Badge -->
         <div class="poster-container">
           <img
             [src]="movie.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'"
@@ -124,14 +114,12 @@
             class="poster-img"
             (error)="onPosterError($event)" />
 
-          <!-- Rating badge -->
           <div class="rating-badge" *ngIf="movie.rating">
             <ion-icon name="star" class="star-icon"></ion-icon>
             <span>{{ movie.rating | number:'1.1-1' }}</span>
           </div>
         </div>
 
-        <!-- Movie Details & Action Controls -->
         <div class="movie-footer">
           <div class="text-meta">
             <h3 class="movie-title">{{ movie.title }}</h3>
@@ -139,7 +127,6 @@
             <p class="movie-overview-snippet" *ngIf="isAdmin && movie.overview">{{ movie.overview }}</p>
           </div>
 
-          <!-- User Role Action: Favorite Heart -->
           <button
             *ngIf="!isAdmin"
             class="fav-btn"
@@ -152,7 +139,6 @@
             </ion-icon>
           </button>
 
-          <!-- Admin Role Actions: Edit & Delete -->
           <div *ngIf="isAdmin" class="admin-actions-wrap" (click)="$event.stopPropagation()">
             <button
               class="card-action-btn edit-action-btn"
@@ -179,14 +165,10 @@
   </div>
 </ion-content>
 
-<!-- ========================================== -->
-<!-- MODAL: ADD / IMPORT MOVIE (ADMIN ONLY)     -->
-<!-- ========================================== -->
+
 <ion-modal [isOpen]="isAddModalOpen" (didDismiss)="closeAddModal()" class="add-movie-modal">
   <ng-template>
     <div class="modal-inner-page">
-
-      <!-- Modal Header -->
       <header class="modal-header">
         <div class="modal-title-group">
           <span class="modal-kicker-purple">CATALOG MANAGEMENT</span>
@@ -198,7 +180,6 @@
         </button>
       </header>
 
-      <!-- Segmented Tabs: TMDB Import vs Manual Creation -->
       <div class="modal-segmented-control">
         <button
           type="button"
@@ -218,25 +199,21 @@
         </button>
       </div>
 
-      <!-- VIEW 1: TMDB IMPORT -->
       <div *ngIf="modalTab === 'tmdb'" class="tab-content-fade">
-
-        <!-- 1-Click Preset Classics Card -->
         <div class="batch-import-card" (click)="onImportAllPreset()">
           <div class="batch-icon-wrap">
             <ion-icon name="sparkles-outline"></ion-icon>
           </div>
           <div class="batch-text-wrap">
-            <h4>TMDB Cult Classics</h4>
-            <p>15 iconic films ready to import in 1 click</p>
+            <h4>Films populaires TMDB</h4>
+            <p>Importer les films tendances directement depuis l'API TMDB</p>
           </div>
           <button type="button" class="batch-action-btn">
-            <span>Import All</span>
+            <span>Importer tout</span>
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </button>
         </div>
 
-        <!-- TMDB Search Box -->
         <div class="modal-search-box">
           <ion-icon name="search-outline" class="search-icon"></ion-icon>
           <input
@@ -248,7 +225,6 @@
           <ion-spinner *ngIf="isModalSearching" name="crescent" class="modal-search-spinner"></ion-spinner>
         </div>
 
-        <!-- TMDB Results List -->
         <div class="modal-results-scroll">
           <div *ngFor="let item of modalSearchResults" class="tmdb-result-row">
             <img
@@ -279,7 +255,6 @@
 
       </div>
 
-      <!-- VIEW 2: MANUAL ENTRY -->
       <div *ngIf="modalTab === 'manual'" class="tab-content-fade">
         <form (ngSubmit)="onAddManualMovie()" class="manual-form-grid">
 
@@ -327,9 +302,6 @@
   </ng-template>
 </ion-modal>
 
-<!-- ========================================== -->
-<!-- MODAL: EDIT MOVIE (ADMIN ONLY)             -->
-<!-- ========================================== -->
 <ion-modal [isOpen]="isEditModalOpen" (didDismiss)="closeEditModal()" class="add-movie-modal edit-movie-modal">
   <ng-template>
     <div class="modal-inner-page">
@@ -395,9 +367,6 @@
   </ng-template>
 </ion-modal>
 
-<!-- ========================================== -->
-<!-- MODAL: DELETE CONFIRMATION (ADMIN ONLY)    -->
-<!-- ========================================== -->
 <ion-modal [isOpen]="isDeleteModalOpen" (didDismiss)="closeDeleteModal()" class="delete-movie-modal">
   <ng-template>
     <div class="delete-modal-inner">
@@ -423,7 +392,6 @@
   </ng-template>
 </ion-modal>
 
-<!-- Toast & Loading Feedback -->
 <ion-toast
   [isOpen]="isToastOpen"
   [message]="toastMessage"
