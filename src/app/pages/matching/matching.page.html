@@ -67,25 +67,39 @@
 
     <div class="empty-state" *ngIf="!isLoading && hasNoFavorites">
       <div class="empty-glow-icon">🎬</div>
-      <h2>Your CineMatch Playlist is Empty</h2>
+      <h2>Votre playlist est vide</h2>
       <p>
-        You need favorites in your playlist to calculate affinities and match with other cinephiles. Add movies you love to find your cinema soulmates!
+        Ajoutez des films à vos favoris pour calculer vos affinités et trouver vos âmes sœurs cinéphiles !
       </p>
       <button class="btn-primary" (click)="goToMovies()">
         <ion-icon name="film-outline"></ion-icon>
-        <span>Discover Movies</span>
+        <span>Découvrir les films</span>
       </button>
     </div>
 
-    <div class="empty-state" *ngIf="!isLoading && !hasNoFavorites && filteredMatches.length === 0">
-      <div class="empty-glow-icon">🔍</div>
-      <h2>No Matches at this Threshold</h2>
+    <!-- État : Aucun autre utilisateur réel dans Firestore -->
+    <div class="empty-state" *ngIf="!isLoading && !hasNoFavorites && allMatches.length === 0">
+      <div class="empty-glow-icon">👥</div>
+      <h2>Aucun autre cinéphile pour le moment</h2>
       <p>
-        None of your current matches reach this threshold. Explore all cinephiles or add more films to increase your affinity scores!
+        Vous êtes le premier cinéphile actif avec des favoris ! Créez un autre compte utilisateur dans l'application avec des favoris pour voir apparaître le matching en temps réel.
+      </p>
+      <button class="btn-primary" (click)="goToMovies()">
+        <ion-icon name="film-outline"></ion-icon>
+        <span>Ajouter plus de films</span>
+      </button>
+    </div>
+
+    <!-- État : Des utilisateurs existent mais aucun n'atteint le seuil sélectionné (75%+) -->
+    <div class="empty-state" *ngIf="!isLoading && !hasNoFavorites && allMatches.length > 0 && filteredMatches.length === 0">
+      <div class="empty-glow-icon">🔍</div>
+      <h2>Aucun match à plus de 75%</h2>
+      <p>
+        Aucun cinéphile inscrit n'atteint encore 75% de favoris en commun avec votre playlist. Cliquez ci-dessous pour voir tous les utilisateurs ou ajoutez plus de films communs !
       </p>
       <button class="btn-primary" (click)="setFilter('all')">
         <ion-icon name="people-outline"></ion-icon>
-        <span>Show All Cinephiles</span>
+        <span>Afficher tous les cinéphiles ({{ allMatches.length }})</span>
       </button>
     </div>
 

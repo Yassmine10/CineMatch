@@ -115,23 +115,13 @@ export class MatchingPage implements OnInit, OnDestroy {
 
     this.hasNoFavorites = false;
 
-    // Filter real users from Firestore (excluding self and inactive)
-    const otherUsers = (this.allUsers || []).filter(u =>
+    // Strictly real users from Firestore (excluding self, admins and deactivated accounts)
+    const candidateUsers = (this.allUsers || []).filter(u =>
       u.uid !== this.currentUser?.uid &&
       u.email !== this.currentUser?.email &&
       u.active !== false &&
       u.role !== 'admin'
     );
-
-    let candidateUsers = [...otherUsers];
-    if (candidateUsers.length < 3) {
-      const demoUsers = this.getDemoCinephiles(favs, this.allMovies);
-      for (const demo of demoUsers) {
-        if (!candidateUsers.some(u => u.uid === demo.uid)) {
-          candidateUsers.push(demo);
-        }
-      }
-    }
 
     this.allMatches = this.matchingService.findMatches(
       this.currentUser,
@@ -173,87 +163,6 @@ export class MatchingPage implements OnInit, OnDestroy {
     if (val >= 75) return 'Super Soulmate';
     if (val >= 50) return 'High Affinity';
     return 'Taste Match';
-  }
-
-  private getDemoCinephiles(currentFavs: string[], allMovies: Movie[]): UserProfile[] {
-    if (allMovies.length === 0) return [];
-    const movieIds = allMovies.map(m => m.id);
-    const count = currentFavs.length;
-
-    const demo1Favs = Array.from(new Set([
-      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.85))),
-      ...movieIds.slice(0, 2)
-    ]));
-
-    const demo2Favs = Array.from(new Set([
-      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.65))),
-      ...movieIds.slice(2, 5)
-    ]));
-
-    const demo3Favs = Array.from(new Set([
-      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.50))),
-      ...movieIds.slice(5, 8)
-    ]));
-
-    const demo4Favs = Array.from(new Set([
-      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.35))),
-      ...movieIds.slice(8, 12)
-    ]));
-
-    return [
-      {
-        uid: 'demo_sophie',
-        nom: 'Laurent',
-        prenom: 'Sophie',
-        age: 26,
-        email: 'sophie.laurent@cinematch.io',
-        phoneNumber: '+33 6 45 28 91 03',
-        photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80',
-        role: 'user',
-        active: true,
-        favorites: demo1Favs,
-        createdAt: new Date().toISOString()
-      },
-      {
-        uid: 'demo_lucas',
-        nom: 'Mercier',
-        prenom: 'Lucas',
-        age: 28,
-        email: 'lucas.mercier@cinematch.io',
-        phoneNumber: '+33 6 72 19 84 55',
-        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80',
-        role: 'user',
-        active: true,
-        favorites: demo2Favs,
-        createdAt: new Date().toISOString()
-      },
-      {
-        uid: 'demo_camille',
-        nom: 'Chen',
-        prenom: 'Camille',
-        age: 24,
-        email: 'camille.chen@cinematch.io',
-        phoneNumber: '+33 6 11 88 43 90',
-        photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80',
-        role: 'user',
-        active: true,
-        favorites: demo3Favs,
-        createdAt: new Date().toISOString()
-      },
-      {
-        uid: 'demo_alexandre',
-        nom: 'Dumas',
-        prenom: 'Alexandre',
-        age: 31,
-        email: 'alexandre.dumas@cinematch.io',
-        phoneNumber: '+33 6 83 49 10 27',
-        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80',
-        role: 'user',
-        active: true,
-        favorites: demo4Favs,
-        createdAt: new Date().toISOString()
-      }
-    ];
   }
 
   doRefresh(event: any) {
