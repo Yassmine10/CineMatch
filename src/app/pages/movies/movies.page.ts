@@ -3,15 +3,22 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  IonContent, IonIcon, IonSpinner
+  IonContent, IonIcon, IonSpinner, IonModal, IonToast, IonLoading
 } from '@ionic/angular';
 import { MovieService } from '../../services/movie.service';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { TmdbService } from '../../services/tmdb.service';
 import { Movie } from '../../models/movie.model';
 import { UserProfile } from '../../models/user.model';
 import { addIcons } from 'ionicons';
-import { heart, heartOutline, star, searchOutline } from 'ionicons/icons';
+import {
+  heart, heartOutline, star, searchOutline,
+  add, addCircle, addCircleOutline, trashOutline, trash,
+  createOutline, create, sparklesOutline, cloudDownloadOutline,
+  closeOutline, chevronForwardOutline, checkmarkCircleOutline,
+  checkmarkOutline, refreshOutline, filmOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-movies',
@@ -19,34 +26,83 @@ import { heart, heartOutline, star, searchOutline } from 'ionicons/icons';
   styleUrls: ['./movies.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, IonContent, IonIcon, IonSpinner
+    CommonModule, FormsModule, IonContent, IonIcon,
+    IonSpinner, IonModal, IonToast, IonLoading
   ]
 })
 export class MoviesPage implements OnInit {
   movies: Movie[] = [];
   filteredMovies: Movie[] = [];
   searchQuery = '';
-  selectedCategory = 'Tous';
+  selectedCategory = 'All';
   categories: string[] = [
-    'Tous', 'Action', 'Comédie', 'Drame', 'Science-Fiction', 'Animation', 'Thriller', 'Romance'
+    'All', 'Action', 'Comedy', 'Drama', 'Sci-Fi', 'Animation', 'Thriller', 'Romance'
   ];
 
   currentUser: UserProfile | null = null;
+  isAdmin = false;
   isLoading = true;
+
+  // Admin Modal: Add / Import Movie
+  isAddModalOpen = false;
+  modalTab: 'tmdb' | 'manual' = 'tmdb';
+  modalSearchQuery = '';
+  modalSearchResults: Movie[] = [];
+  isModalSearching = false;
+  presetCatalog: Movie[] = [];
+
+  // Manual Add Form
+  title = '';
+  year: number | string | null = null;
+  genre = '';
+  overview = '';
+  posterUrl = '';
+  rating: number | null = null;
+
+  // Admin Modal: Edit Movie
+  isEditModalOpen = false;
+  selectedMovieForEdit: Movie | null = null;
+  editTitle = '';
+  editYear: number | string | null = null;
+  editGenre = '';
+  editOverview = '';
+  editPosterUrl = '';
+  editRating: number | null = null;
+
+  // Admin Modal: Delete Movie
+  isDeleteModalOpen = false;
+  movieToDelete: Movie | null = null;
+
+  // UI feedback
+  loadingMessage = 'Processing...';
+  isActionLoading = false;
+  toastMessage = '';
+  isToastOpen = false;
 
   constructor(
     private movieService: MovieService,
     private userService: UserService,
     private authService: AuthService,
+    private tmdbService: TmdbService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ heart, heartOutline, star, searchOutline });
+    addIcons({
+      heart, heartOutline, star, searchOutline,
+      add, addCircle, addCircleOutline, trashOutline, trash,
+      createOutline, create, sparklesOutline, cloudDownloadOutline,
+      closeOutline, chevronForwardOutline, checkmarkCircleOutline,
+      checkmarkOutline, refreshOutline, filmOutline
+    });
   }
 
   ngOnInit() {
+    this.presetCatalog = this.tmdbService.getPresetCatalog();
+    this.modalSearchResults = this.presetCatalog;
+
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      this.isAdmin = user?.role === 'admin';
       this.cdr.detectChanges();
     });
 
@@ -56,18 +112,35 @@ export class MoviesPage implements OnInit {
       this.filterMovies();
       this.cdr.detectChanges();
     });
+
+    // Auto clean duplicates if admin
+    this.movieService.removeFirestoreDuplicates().then(count => {
+      if (count > 0) {
+        console.log(`[Auto-Clean] ${count} duplicate movies cleaned.`);
+      }
+    });
   }
 
   get greeting(): string {
     const hour = new Date().getHours();
-    const salutation = hour >= 18 || hour < 5 ? 'BONSOIR' : 'BONJOUR';
+    const salutation = hour >= 18 || hour < 5 ? 'GOOD EVENING' : hour >= 12 ? 'GOOD AFTERNOON' : 'GOOD MORNING';
     const name = this.currentUser?.prenom ? `, ${this.currentUser.prenom.toUpperCase()}` : '';
     return `${salutation}${name}`;
   }
 
+  get userInitials(): string {
+    if (this.currentUser?.prenom && this.currentUser?.nom) {
+      return (this.currentUser.prenom[0] + this.currentUser.nom[0]).toUpperCase();
+    }
+    if (this.currentUser?.prenom) {
+      return this.currentUser.prenom.substring(0, 2).toUpperCase();
+    }
+    return this.isAdmin ? 'AD' : 'CM';
+  }
+
   selectCategory(category: string) {
-    if (this.selectedCategory === category && category !== 'Tous') {
-      this.selectedCategory = 'Tous';
+    if (this.selectedCategory === category && category !== 'All') {
+      this.selectedCategory = 'All';
     } else {
       this.selectedCategory = category;
     }
@@ -77,9 +150,15 @@ export class MoviesPage implements OnInit {
   filterMovies() {
     let list = this.movies;
 
-    if (this.selectedCategory !== 'Tous') {
+    if (this.selectedCategory !== 'All') {
       const cat = this.selectedCategory.toLowerCase();
-      list = list.filter(m => m.genre && m.genre.toLowerCase().includes(cat));
+      list = list.filter(m => {
+        const g = (m.genre || '').toLowerCase();
+        if (cat === 'comedy') return g.includes('comedy') || g.includes('comédie');
+        if (cat === 'drama') return g.includes('drama') || g.includes('drame');
+        if (cat === 'sci-fi') return g.includes('sci') || g.includes('science');
+        return g.includes(cat);
+      });
     }
 
     if (this.searchQuery.trim()) {
@@ -95,6 +174,7 @@ export class MoviesPage implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // User Favorites Handling
   isFavorite(movieId: string): boolean {
     return this.currentUser?.favorites?.includes(movieId) || false;
   }
@@ -104,21 +184,257 @@ export class MoviesPage implements OnInit {
     if (!this.currentUser) return;
 
     if (this.isFavorite(movie.id)) {
+      this.currentUser.favorites = (this.currentUser.favorites || []).filter(id => id !== movie.id);
+      this.cdr.detectChanges();
       await this.userService.removeFavorite(this.currentUser.uid, movie.id);
     } else {
+      this.currentUser.favorites = [...(this.currentUser.favorites || []), movie.id];
+      this.cdr.detectChanges();
       await this.userService.addFavorite(this.currentUser.uid, movie.id);
+    }
+  }
+
+  // Admin Add / Import Modal
+  openAddModal() {
+    this.isAddModalOpen = true;
+    this.modalSearchQuery = '';
+    this.modalSearchResults = this.presetCatalog;
+    this.cdr.detectChanges();
+  }
+
+  closeAddModal() {
+    this.isAddModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  setModalTab(tab: 'tmdb' | 'manual') {
+    this.modalTab = tab;
+    this.cdr.detectChanges();
+  }
+
+  onModalSearch() {
+    if (!this.modalSearchQuery.trim()) {
+      this.modalSearchResults = this.presetCatalog;
+      return;
+    }
+    this.isModalSearching = true;
+    this.tmdbService.searchMovies(this.modalSearchQuery).subscribe({
+      next: (results) => {
+        this.modalSearchResults = results;
+        this.isModalSearching = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isModalSearching = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  isAlreadyImported(title: string): boolean {
+    const norm = (title || '').trim().toLowerCase();
+    return this.movies.some(m => (m.title || '').trim().toLowerCase() === norm);
+  }
+
+  async onImportSingleMovie(movie: Movie) {
+    this.isActionLoading = true;
+    this.loadingMessage = `Importing "${movie.title}"...`;
+    this.cdr.detectChanges();
+
+    try {
+      await this.movieService.addMovie({
+        title: movie.title,
+        year: movie.year,
+        genre: movie.genre,
+        overview: movie.overview,
+        posterUrl: movie.posterUrl,
+        rating: movie.rating
+      });
+      this.isActionLoading = false;
+      this.showToast(`✅ "${movie.title}" imported successfully!`);
+    } catch (err: any) {
+      this.isActionLoading = false;
+      this.showToast('Error importing movie.');
     }
     this.cdr.detectChanges();
   }
 
-  get userInitials(): string {
-    if (this.currentUser?.prenom && this.currentUser?.nom) {
-      return (this.currentUser.prenom[0] + this.currentUser.nom[0]).toUpperCase();
+  async onImportAllPreset() {
+    this.isActionLoading = true;
+    this.loadingMessage = 'Importing preset catalog...';
+    this.cdr.detectChanges();
+
+    try {
+      const count = await this.movieService.importMultipleMovies(this.presetCatalog);
+      this.isActionLoading = false;
+      this.isAddModalOpen = false;
+      this.showToast(`🎉 ${count} iconic movies imported successfully!`);
+    } catch (err: any) {
+      this.isActionLoading = false;
+      this.showToast('Error during batch import.');
     }
-    if (this.currentUser?.prenom) {
-      return this.currentUser.prenom.substring(0, 2).toUpperCase();
+    this.cdr.detectChanges();
+  }
+
+  async onAddManualMovie() {
+    if (!this.title.trim() || !this.year || !this.genre.trim() || !this.overview.trim() || !this.posterUrl.trim() || this.rating === null) {
+      this.showToast('Please fill in all movie fields.');
+      return;
     }
-    return 'CM';
+
+    this.isActionLoading = true;
+    this.loadingMessage = 'Saving movie...';
+    this.cdr.detectChanges();
+
+    try {
+      await this.movieService.addMovie({
+        title: this.title.trim(),
+        year: this.year,
+        genre: this.genre.trim(),
+        overview: this.overview.trim(),
+        posterUrl: this.posterUrl.trim(),
+        rating: Number(this.rating)
+      });
+      this.isActionLoading = false;
+      this.showToast('✅ Movie created successfully!');
+      this.resetForm();
+      this.isAddModalOpen = false;
+    } catch (err: any) {
+      this.isActionLoading = false;
+      this.showToast('Error creating movie.');
+    }
+    this.cdr.detectChanges();
+  }
+
+  resetForm() {
+    this.title = '';
+    this.year = null;
+    this.genre = '';
+    this.overview = '';
+    this.posterUrl = '';
+    this.rating = null;
+  }
+
+  // Admin Edit Modal
+  openEditModal(movie: Movie, event: Event) {
+    event.stopPropagation();
+    this.selectedMovieForEdit = movie;
+    this.editTitle = movie.title;
+    this.editYear = movie.year;
+    this.editGenre = movie.genre;
+    this.editOverview = movie.overview || '';
+    this.editPosterUrl = movie.posterUrl || '';
+    this.editRating = movie.rating;
+    this.isEditModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeEditModal() {
+    this.isEditModalOpen = false;
+    this.selectedMovieForEdit = null;
+    this.cdr.detectChanges();
+  }
+
+  async onSaveMovieEdit() {
+    if (!this.selectedMovieForEdit) return;
+    if (!this.editTitle.trim() || !this.editYear || !this.editGenre.trim()) {
+      this.showToast('Please fill in required fields (Title, Year, Genre).');
+      return;
+    }
+
+    this.isActionLoading = true;
+    this.loadingMessage = 'Updating movie details...';
+    this.cdr.detectChanges();
+
+    try {
+      await this.movieService.updateMovie(this.selectedMovieForEdit.id, {
+        title: this.editTitle.trim(),
+        year: Number(this.editYear),
+        genre: this.editGenre.trim(),
+        overview: this.editOverview.trim(),
+        posterUrl: this.editPosterUrl.trim() || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80',
+        rating: this.editRating !== null ? Number(this.editRating) : 7.0
+      });
+      this.isActionLoading = false;
+      this.isEditModalOpen = false;
+      this.showToast(`✅ "${this.editTitle}" updated successfully!`);
+    } catch (err: any) {
+      this.isActionLoading = false;
+      this.showToast('Error updating movie.');
+    }
+    this.cdr.detectChanges();
+  }
+
+  // Admin Delete Modal
+  openDeleteModal(movie: Movie, event: Event) {
+    event.stopPropagation();
+    this.movieToDelete = movie;
+    this.isDeleteModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+    this.movieToDelete = null;
+    this.cdr.detectChanges();
+  }
+
+  async confirmDeleteMovie() {
+    if (!this.movieToDelete) return;
+    const movie = this.movieToDelete;
+    this.isDeleteModalOpen = false;
+    this.isActionLoading = true;
+    this.loadingMessage = `Deleting "${movie.title}"...`;
+    this.cdr.detectChanges();
+
+    try {
+      await this.movieService.deleteMovie(movie.id);
+      this.isActionLoading = false;
+      this.showToast(`🗑️ "${movie.title}" removed from catalog.`);
+    } catch (err: any) {
+      this.isActionLoading = false;
+      this.showToast('Error deleting movie.');
+    } finally {
+      this.movieToDelete = null;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async cleanDuplicates() {
+    this.isActionLoading = true;
+    this.loadingMessage = 'Cleaning duplicates...';
+    this.cdr.detectChanges();
+
+    try {
+      const deleted = await this.movieService.removeFirestoreDuplicates();
+      if (deleted > 0) {
+        this.showToast(`✨ ${deleted} duplicate movie(s) removed!`);
+      } else {
+        this.showToast('✅ No duplicate movies detected.');
+      }
+    } catch (err: any) {
+      this.showToast('Error cleaning duplicate movies.');
+    } finally {
+      this.isActionLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  // Navigation & Utilities
+  openDetail(movie: Movie) {
+    this.router.navigate(['/movie-detail', movie.id]);
+  }
+
+  goToProfile() {
+    this.router.navigate(['/tabs/profile']);
+  }
+
+  goTo(path: string) {
+    this.router.navigate([path]);
+  }
+
+  onPosterError(event: any) {
+    event.target.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
   }
 
   onAvatarError() {
@@ -128,15 +444,9 @@ export class MoviesPage implements OnInit {
     }
   }
 
-  onPosterError(event: any) {
-    event.target.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
-  }
-
-  openDetail(movie: Movie) {
-    this.router.navigate(['/movie-detail', movie.id]);
-  }
-
-  goToProfile() {
-    this.router.navigate(['/tabs/profile']);
+  showToast(msg: string) {
+    this.toastMessage = msg;
+    this.isToastOpen = true;
+    this.cdr.detectChanges();
   }
 }

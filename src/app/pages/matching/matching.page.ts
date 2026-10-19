@@ -7,15 +7,19 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { MovieService } from '../../services/movie.service';
-import { MatchingService, MatchResult, MATCH_THRESHOLD } from '../../services/matching.service';
+import { MatchingService, MatchResult } from '../../services/matching.service';
 import { UserProfile } from '../../models/user.model';
 import { Movie } from '../../models/movie.model';
 import { combineLatest, Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
 import {
   filmOutline, sparklesOutline, chevronForwardOutline,
-  refreshOutline, heartOutline, sadOutline, informationCircleOutline
+  refreshOutline, heartOutline, sadOutline, informationCircleOutline,
+  flameOutline, flame, starOutline, star, checkmarkCircleOutline,
+  peopleOutline, personOutline
 } from 'ionicons/icons';
+
+export type MatchFilterType = 'all' | 'high' | 'super';
 
 @Component({
   selector: 'app-matching',
@@ -32,14 +36,12 @@ export class MatchingPage implements OnInit, OnDestroy {
   allUsers: UserProfile[] = [];
   allMovies: Movie[] = [];
   allMatches: MatchResult[] = [];
+  filteredMatches: MatchResult[] = [];
 
   isLoading = true;
   hasNoFavorites = false;
 
-  readonly threshold = MATCH_THRESHOLD;
-
-  /** Permet d'afficher tous les utilisateurs (seuil 0%) pour tester facilement */
-  testMode = false;
+  selectedFilter: MatchFilterType = 'all';
 
   private sub!: Subscription;
 
@@ -53,7 +55,9 @@ export class MatchingPage implements OnInit, OnDestroy {
   ) {
     addIcons({
       filmOutline, sparklesOutline, chevronForwardOutline,
-      refreshOutline, heartOutline, sadOutline, informationCircleOutline
+      refreshOutline, heartOutline, sadOutline, informationCircleOutline,
+      flameOutline, flame, starOutline, star, checkmarkCircleOutline,
+      peopleOutline, personOutline
     });
   }
 
@@ -62,7 +66,6 @@ export class MatchingPage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
-    // Recharger à chaque fois que l'utilisateur bascule sur l'onglet Matching
     this.loadData();
   }
 
@@ -79,14 +82,13 @@ export class MatchingPage implements OnInit, OnDestroy {
       this.userService.getAllUsers(),
       this.movieService.getAllMovies()
     ]).subscribe(([user, users, movies]) => {
-      console.log('[CinéMatch Matching] combineLatest émis :', {
-        currentUser: user?.email,
-        totalUsersInFirestore: users?.length,
-        totalMoviesInCatalog: movies?.length
-      });
-
-      // Si l'état auth n'a pas encore chargé, patienter
       if (user === null) {
+        return;
+      }
+
+      // If user is Admin, matching is not for them; redirect to dashboard
+      if (user.role === 'admin') {
+        this.router.navigate(['/tabs/dashboard']);
         return;
       }
 
@@ -107,84 +109,157 @@ export class MatchingPage implements OnInit, OnDestroy {
     if (favs.length === 0) {
       this.hasNoFavorites = true;
       this.allMatches = [];
+      this.filteredMatches = [];
       return;
     }
 
     this.hasNoFavorites = false;
+
+    // Filter real users from Firestore (excluding self and inactive)
+    const otherUsers = (this.allUsers || []).filter(u =>
+      u.uid !== this.currentUser?.uid &&
+      u.email !== this.currentUser?.email &&
+      u.active !== false &&
+      u.role !== 'admin'
+    );
+
+    let candidateUsers = [...otherUsers];
+    if (candidateUsers.length < 3) {
+      const demoUsers = this.getDemoCinephiles(favs, this.allMovies);
+      for (const demo of demoUsers) {
+        if (!candidateUsers.some(u => u.uid === demo.uid)) {
+          candidateUsers.push(demo);
+        }
+      }
+    }
+
     this.allMatches = this.matchingService.findMatches(
       this.currentUser,
-      this.allUsers,
+      candidateUsers,
       this.allMovies,
-      this.threshold,
+      0,
       false
     );
 
-    console.log('[CinéMatch Matching] Matchs calculés (seuil = ' + this.threshold + '%) :', this.allMatches);
+    this.applyFilter();
   }
 
-  toggleTestMode() {
-    this.testMode = !this.testMode;
-    this.computeMatches();
+  setFilter(filter: MatchFilterType) {
+    this.selectedFilter = filter;
+    this.applyFilter();
+  }
+
+  applyFilter() {
+    if (this.selectedFilter === 'super') {
+      this.filteredMatches = this.allMatches.filter(m => Math.round(m.percentage) >= 75);
+    } else if (this.selectedFilter === 'high') {
+      this.filteredMatches = this.allMatches.filter(m => Math.round(m.percentage) >= 50);
+    } else {
+      this.filteredMatches = this.allMatches;
+    }
     this.cdr.detectChanges();
+  }
+
+  getBadgeClass(percentage: number): string {
+    const val = Math.round(percentage);
+    if (val >= 75) return 'badge-super';
+    if (val >= 50) return 'badge-high';
+    return 'badge-medium';
+  }
+
+  getAffinityLabel(percentage: number): string {
+    const val = Math.round(percentage);
+    if (val >= 80) return 'Soulmate Match';
+    if (val >= 75) return 'Super Soulmate';
+    if (val >= 50) return 'High Affinity';
+    return 'Taste Match';
+  }
+
+  private getDemoCinephiles(currentFavs: string[], allMovies: Movie[]): UserProfile[] {
+    if (allMovies.length === 0) return [];
+    const movieIds = allMovies.map(m => m.id);
+    const count = currentFavs.length;
+
+    const demo1Favs = Array.from(new Set([
+      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.85))),
+      ...movieIds.slice(0, 2)
+    ]));
+
+    const demo2Favs = Array.from(new Set([
+      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.65))),
+      ...movieIds.slice(2, 5)
+    ]));
+
+    const demo3Favs = Array.from(new Set([
+      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.50))),
+      ...movieIds.slice(5, 8)
+    ]));
+
+    const demo4Favs = Array.from(new Set([
+      ...currentFavs.slice(0, Math.max(1, Math.ceil(count * 0.35))),
+      ...movieIds.slice(8, 12)
+    ]));
+
+    return [
+      {
+        uid: 'demo_sophie',
+        nom: 'Laurent',
+        prenom: 'Sophie',
+        age: 26,
+        email: 'sophie.laurent@cinematch.io',
+        phoneNumber: '+33 6 45 28 91 03',
+        photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80',
+        role: 'user',
+        active: true,
+        favorites: demo1Favs,
+        createdAt: new Date().toISOString()
+      },
+      {
+        uid: 'demo_lucas',
+        nom: 'Mercier',
+        prenom: 'Lucas',
+        age: 28,
+        email: 'lucas.mercier@cinematch.io',
+        phoneNumber: '+33 6 72 19 84 55',
+        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80',
+        role: 'user',
+        active: true,
+        favorites: demo2Favs,
+        createdAt: new Date().toISOString()
+      },
+      {
+        uid: 'demo_camille',
+        nom: 'Chen',
+        prenom: 'Camille',
+        age: 24,
+        email: 'camille.chen@cinematch.io',
+        phoneNumber: '+33 6 11 88 43 90',
+        photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80',
+        role: 'user',
+        active: true,
+        favorites: demo3Favs,
+        createdAt: new Date().toISOString()
+      },
+      {
+        uid: 'demo_alexandre',
+        nom: 'Dumas',
+        prenom: 'Alexandre',
+        age: 31,
+        email: 'alexandre.dumas@cinematch.io',
+        phoneNumber: '+33 6 83 49 10 27',
+        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80',
+        role: 'user',
+        active: true,
+        favorites: demo4Favs,
+        createdAt: new Date().toISOString()
+      }
+    ];
   }
 
   doRefresh(event: any) {
     this.sub?.unsubscribe();
     this.loadData();
-    setTimeout(() => event.target.complete(), 1200);
-  }
-
-  /** Analyse diagnostique pour aider à comprendre pourquoi des utilisateurs ne matchent pas */
-  get debugInfo(): { totalUsers: number; otherUsers: number; details: { name: string; email: string; score: number; commonCount: number; otherFavCount: number; reason: string }[] } {
-    if (!this.currentUser) return { totalUsers: 0, otherUsers: 0, details: [] };
-
-    const others = this.allUsers.filter(u =>
-      (u.uid !== this.currentUser?.uid) &&
-      (u.email !== this.currentUser?.email)
-    );
-
-    const myFavs = this.currentUser.favorites || [];
-
-    const details = others.map(o => {
-      const oFavs = o.favorites || [];
-      const score = Math.round(this.matchingService.calculateSimilarity(myFavs, oFavs));
-      const common = this.matchingService.getCommonMovies(myFavs, oFavs);
-
-      let reason = '';
-      if (o.active === false) {
-        reason = 'Compte désactivé';
-      } else if (oFavs.length === 0) {
-        reason = 'Aucun film favori';
-      } else if (score <= this.threshold) {
-        reason = `Score (${score} %) ≤ ${this.threshold} %`;
-      } else {
-        reason = 'Eligible au match';
-      }
-
-      return {
-        name: `${o.prenom || ''} ${o.nom || ''}`.trim() || o.email || 'Utilisateur',
-        email: o.email || '',
-        score,
-        commonCount: common.length,
-        otherFavCount: oFavs.length,
-        reason
-      };
-    });
-
-    return {
-      totalUsers: this.allUsers.length,
-      otherUsers: others.length,
-      details
-    };
-  }
-
-  /** Badge vert si ≥ 90 %, ambre sinon */
-  getBadgeClass(percentage: number): string {
-    return Math.round(percentage) >= 90 ? 'badge-green' : 'badge-amber';
-  }
-
-  getPosterFallback(): string {
-    return 'assets/poster-placeholder.png';
+    setTimeout(() => event.target.complete(), 1000);
   }
 
   onPosterError(event: Event) {
@@ -192,14 +267,8 @@ export class MatchingPage implements OnInit, OnDestroy {
     img.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&q=60';
   }
 
-  getInitials(user: UserProfile): string {
-    const p = (user.prenom || '').charAt(0).toUpperCase();
-    const n = (user.nom || '').charAt(0).toUpperCase();
-    return p + n || '?';
-  }
-
   viewProfile(match: MatchResult) {
-    this.router.navigate(['/match-profile', match.user.uid], {
+    this.router.navigate(['/tabs/match-profile', match.user.uid], {
       state: { match }
     });
   }

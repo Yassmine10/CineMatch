@@ -10,7 +10,7 @@ import { Movie } from '../models/movie.model';
 export class TmdbService {
   private http = inject(HttpClient);
 
-  // Catalogue complet de films cultes prêts à l'import
+  // Catalogue complet de films 
   private readonly predefinedCatalog: Movie[] = [
     {
       id: 'tmdb_27205',

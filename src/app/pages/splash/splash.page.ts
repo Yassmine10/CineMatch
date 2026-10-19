@@ -17,6 +17,7 @@ export class SplashPage {
     addIcons({ chevronForwardOutline, heart });
   }
 
+
   onGetStarted() {
     localStorage.setItem('cinematch_has_seen_splash', 'true');
     this.router.navigate(['/login']);

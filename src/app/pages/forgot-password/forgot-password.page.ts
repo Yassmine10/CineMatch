@@ -29,12 +29,22 @@ export class ForgotPasswordPage {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ mailOutline, sendOutline, arrowBackOutline, checkmarkCircleOutline, alertCircleOutline });
+    addIcons({
+      mailOutline, sendOutline, arrowBackOutline,
+      checkmarkCircleOutline, alertCircleOutline
+    });
   }
 
   async onResetPassword() {
-    if (!this.email.trim()) {
-      this.showToast('Veuillez renseigner votre adresse email.');
+    const cleanEmail = (this.email || '').trim();
+    if (!cleanEmail) {
+      this.showToast('Please enter your account email.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      this.showToast('Please enter a valid email address.');
       return;
     }
 
@@ -43,10 +53,10 @@ export class ForgotPasswordPage {
     this.cdr.detectChanges();
 
     try {
-      await this.authService.resetPassword(this.email.trim());
+      await this.authService.resetPassword(cleanEmail);
       this.isEmailSent = true;
     } catch (err: any) {
-      this.showToast(err.message || 'Erreur lors de la réinitialisation.');
+      this.showToast(err.message || 'Error sending password reset email.');
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
@@ -57,7 +67,6 @@ export class ForgotPasswordPage {
     this.toastMessage = msg;
     this.toastVisible = true;
     this.cdr.detectChanges();
-    // Auto-masquage après 4 s
     setTimeout(() => {
       this.toastVisible = false;
       this.cdr.detectChanges();

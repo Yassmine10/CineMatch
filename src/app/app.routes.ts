@@ -26,20 +26,44 @@ export const routes: Routes = [
   },
   {
     path: 'match-profile/:uid',
-    loadComponent: () => import('./pages/match-profile/match-profile.page').then(m => m.MatchProfilePage),
+    loadComponent: () => import('./pages/matching/match-profile.page').then(m => m.MatchProfilePage),
     canActivate: [AuthGuard]
   },
   {
-    // Interface utilisateur classique
     path: 'tabs',
     loadChildren: () => import('./pages/tabs/tabs.routes').then(m => m.routes),
     canActivate: [AuthGuard]
   },
+  // Redirections legacy /admin vers l'interface unifiée /tabs
   {
-    // Interface admin séparée — accessible uniquement aux admins
     path: 'admin',
-    loadChildren: () => import('./pages/admin/admin-tabs/admin-tabs.routes').then(m => m.adminRoutes),
-    canActivate: [AdminGuard]
+    redirectTo: 'tabs/dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/dashboard',
+    redirectTo: 'tabs/dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/movies',
+    redirectTo: 'tabs/movies',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/matching',
+    redirectTo: 'tabs/matching',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/users',
+    redirectTo: 'tabs/users',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/profile',
+    redirectTo: 'tabs/profile',
+    pathMatch: 'full'
   },
   {
     path: '',

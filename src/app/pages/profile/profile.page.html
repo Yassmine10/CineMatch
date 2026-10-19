@@ -1,7 +1,7 @@
 <ion-content class="profile-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Header supérieur avec Logo et Titre -->
+    <!-- Top Navigation Header with Original Purple Logo -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -14,73 +14,369 @@
         </div>
         <span class="logo-text">
           <span class="white-text">Ciné</span><span class="orange-text">Match</span>
-          <span class="page-name-title">Mon profil</span>
+          <span class="page-name-title">{{ isAdmin ? 'Admin Profile' : 'My Profile' }}</span>
         </span>
       </div>
+
+      <button class="logout-btn-nav" type="button" (click)="onLogout()" title="Sign Out">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span class="nav-logout-text">Sign Out</span>
+      </button>
     </header>
 
-    <!-- Corps du Profil -->
+    <!-- Main Profile Layout (Responsive 2-column on desktop, stacked on mobile) -->
     <main class="main-body" *ngIf="user">
 
-      <!-- Section Avatar & Nom -->
-      <div class="profile-hero">
-        <div class="avatar-ring-wrapper" (click)="updatePhoto()" title="Changer de photo">
-          <img
-            [src]="user.photo || 'https://ionicframework.com/docs/img/demos/avatar.ionic.png'"
-            [alt]="user.prenom"
-            class="profile-avatar-img" />
+      <!-- Column 1: Identity & Stats Card (100% Purple Theme) -->
+      <div class="profile-side-col">
+        <div class="identity-card">
+          <!-- Avatar with Camera Badge -->
+          <div class="avatar-ring-wrapper" (click)="openPhotoPicker()" title="Change profile photo">
+            <img
+              [src]="user.photo || 'https://ionicframework.com/docs/img/demos/avatar.ionic.png'"
+              [alt]="user.prenom"
+              class="profile-avatar-img" />
 
-          <!-- Bouton caméra flottant violet -->
-          <button class="camera-badge-btn" type="button" (click)="updatePhoto()">
-            <ion-icon name="camera-outline"></ion-icon>
+            <button class="camera-badge-btn" type="button" (click)="openPhotoPicker(); $event.stopPropagation()" title="Change photo">
+              <ion-icon name="camera-outline"></ion-icon>
+            </button>
+          </div>
+
+          <h2 class="user-display-name">{{ user.prenom }} {{ user.nom }}</h2>
+          
+          <!-- Unified Role Badge (Purple, Not Orange) -->
+          <div class="role-pill" [class.admin-pill]="isAdmin">
+            <ion-icon [name]="isAdmin ? 'shield-checkmark-outline' : 'sparkles-outline'"></ion-icon>
+            <span>{{ isAdmin ? 'SYSTEM ADMINISTRATOR' : 'CINEPHILE MEMBER' }}</span>
+          </div>
+
+          <div class="member-pill-badge">
+            <span>Member since {{ memberSinceYear }}</span>
+          </div>
+
+          <!-- Stats Counters: Dynamic for User vs Admin -->
+          <div class="stats-box" *ngIf="!isAdmin">
+            <div class="stat-col">
+              <span class="stat-number">{{ user.favorites.length || 0 }}</span>
+              <span class="stat-label">Favorites</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-col">
+              <span class="stat-number">{{ matchCount }}</span>
+              <span class="stat-label">Matches</span>
+            </div>
+          </div>
+
+          <div class="stats-box admin-stats-box" *ngIf="isAdmin">
+            <div class="stat-col">
+              <span class="stat-number">{{ totalMoviesCount }}</span>
+              <span class="stat-label">Movies</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-col">
+              <span class="stat-number">{{ totalUsersCount }}</span>
+              <span class="stat-label">Users</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-col">
+              <span class="stat-number">{{ activeUsersCount }}</span>
+              <span class="stat-label">Active</span>
+            </div>
+          </div>
+
+          <!-- Email Address Display -->
+          <div class="email-badge-row">
+            <ion-icon name="mail-outline"></ion-icon>
+            <span class="email-text">{{ user.email }}</span>
+          </div>
+
+          <!-- Mobile Sign Out Button -->
+          <button class="logout-btn-card" type="button" (click)="onLogout()">
+            <ion-icon name="log-out-outline"></ion-icon>
+            <span>Sign Out</span>
           </button>
         </div>
-
-        <h1 class="user-display-name">{{ user.prenom }} {{ user.nom }}</h1>
-        <p class="user-sub-info">{{ user.age }} ans</p>
-
-        <!-- Badge Membre depuis -->
-        <div class="member-pill-badge">
-          <span>Membre depuis {{ memberSinceYear }}</span>
-        </div>
       </div>
 
-      <!-- Bloc Statistiques (2 Colonnes) -->
-      <div class="stats-card">
-        <div class="stat-col">
-          <span class="stat-number">{{ user.favorites.length || 0 }}</span>
-          <span class="stat-label">Films favoris</span>
+      <!-- Column 2: Edit Details & Security -->
+      <div class="profile-forms-col">
+
+        <!-- Form 1: Personal Details & Contact Information -->
+        <div class="glass-form-card">
+          <div class="card-title-row">
+            <div class="icon-orb purple-orb">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div class="title-meta">
+              <h3 class="form-title">{{ isAdmin ? 'Admin Credentials' : 'Personal Information' }}</h3>
+              <p class="form-subtitle">Update your profile details and contact number</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="saveProfileDetails()" class="edit-profile-form">
+            <div class="form-grid-2">
+              <!-- First Name -->
+              <div class="input-field-group">
+                <label class="field-label">First Name </label>
+                <div class="input-wrapper">
+                  <ion-icon name="person-outline" class="field-icon"></ion-icon>
+                  <input
+                    type="text"
+                    [(ngModel)]="editPrenom"
+                    name="editPrenom"
+                    placeholder="Enter first name"
+                    required
+                    class="custom-text-input" />
+                </div>
+              </div>
+
+              <!-- Last Name -->
+              <div class="input-field-group">
+                <label class="field-label">Last Name </label>
+                <div class="input-wrapper">
+                  <ion-icon name="person-outline" class="field-icon"></ion-icon>
+                  <input
+                    type="text"
+                    [(ngModel)]="editNom"
+                    name="editNom"
+                    placeholder="Enter last name"
+                    required
+                    class="custom-text-input" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <!-- Phone Number -->
+              <div class="input-field-group">
+                <label class="field-label">Phone Number</label>
+                <div class="input-wrapper">
+                  <ion-icon name="call-outline" class="field-icon"></ion-icon>
+                  <input
+                    type="tel"
+                    [(ngModel)]="editPhoneNumber"
+                    name="editPhoneNumber"
+                    placeholder="phone number "
+                    class="custom-text-input" />
+                </div>
+              </div>
+
+              <!-- Age / Role -->
+              <div class="input-field-group" *ngIf="!isAdmin">
+                <label class="field-label">Age </label>
+                <div class="input-wrapper">
+                  <ion-icon name="heart" class="field-icon"></ion-icon>
+                  <input
+                    type="number"
+                    [(ngModel)]="editAge"
+                    name="editAge"
+                    min="12"
+                    max="120"
+                    required
+                    class="custom-text-input" />
+                </div>
+              </div>
+
+              <div class="input-field-group" *ngIf="isAdmin">
+                <label class="field-label">Account Role</label>
+                <div class="input-wrapper readonly-wrapper">
+                  <ion-icon name="shield-checkmark-outline" class="field-icon"></ion-icon>
+                  <input
+                    type="text"
+                    value="Administrator"
+                    disabled
+                    class="custom-text-input readonly-input" />
+                  <ion-icon name="lock-closed-outline" class="lock-icon"></ion-icon>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email (Read Only) -->
+            <div class="input-field-group">
+              <label class="field-label">Account Email (Verified)</label>
+              <div class="input-wrapper readonly-wrapper">
+                <ion-icon name="mail-outline" class="field-icon"></ion-icon>
+                <input
+                  type="email"
+                  [value]="user.email"
+                  disabled
+                  class="custom-text-input readonly-input" />
+                <ion-icon name="lock-closed-outline" class="lock-icon"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Submit Button (100% Purple) -->
+            <button
+              type="submit"
+              class="save-btn"
+              [disabled]="isSavingProfile">
+              <ion-icon name="save-outline"></ion-icon>
+              <span>{{ isSavingProfile ? 'Saving Changes...' : 'Save Profile Details' }}</span>
+            </button>
+          </form>
         </div>
 
-        <div class="stat-divider"></div>
+        <!-- Form 2: Security & Password Update -->
+        <div class="glass-form-card security-card">
+          <div class="card-title-row">
+            <div class="icon-orb purple-orb">
+              <ion-icon name="key-outline"></ion-icon>
+            </div>
+            <div class="title-meta">
+              <h3 class="form-title">Security & Password</h3>
+              <p class="form-subtitle">Update your password or request a reset email</p>
+            </div>
+          </div>
 
-        <div class="stat-col">
-          <span class="stat-number">{{ matchCount }}</span>
-          <span class="stat-label">Matchs trouvés</span>
+          <form (ngSubmit)="updateUserPassword()" class="edit-profile-form">
+            <div class="form-grid-2">
+              <!-- New Password -->
+              <div class="input-field-group">
+                <label class="field-label">New Password</label>
+                <div class="input-wrapper">
+                  <ion-icon name="lock-closed-outline" class="field-icon"></ion-icon>
+                  <input
+                    [type]="showNewPassword ? 'text' : 'password'"
+                    [(ngModel)]="newPassword"
+                    name="newPassword"
+                    placeholder="Minimum 6 characters"
+                    class="custom-text-input" />
+                  <button
+                    type="button"
+                    class="eye-btn"
+                    (click)="showNewPassword = !showNewPassword">
+                    <ion-icon [name]="showNewPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="input-field-group">
+                <label class="field-label">Confirm Password</label>
+                <div class="input-wrapper">
+                  <ion-icon name="lock-closed-outline" class="field-icon"></ion-icon>
+                  <input
+                    [type]="showConfirmPassword ? 'text' : 'password'"
+                    [(ngModel)]="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Repeat new password"
+                    class="custom-text-input" />
+                  <button
+                    type="button"
+                    class="eye-btn"
+                    (click)="showConfirmPassword = !showConfirmPassword">
+                    <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Actions Row -->
+            <div class="password-actions-row">
+              <button
+                type="submit"
+                class="save-btn purple-action-btn"
+                [disabled]="isUpdatingPassword || !newPassword">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>{{ isUpdatingPassword ? 'Updating...' : 'Update Password' }}</span>
+              </button>
+
+              <button
+                type="button"
+                class="reset-email-btn"
+                (click)="sendResetEmail()">
+                <ion-icon name="mail-outline"></ion-icon>
+                <span>Send Password Reset Email</span>
+              </button>
+            </div>
+          </form>
         </div>
+
       </div>
-
-      <!-- Bloc Adresse Email -->
-      <div class="info-card">
-        <div class="icon-box-purple">
-          <ion-icon name="mail-outline"></ion-icon>
-        </div>
-        <div class="info-text">
-          <span class="info-label">Adresse email</span>
-          <span class="info-value">{{ user.email }}</span>
-        </div>
-      </div>
-
-      <!-- Bouton Se Déconnecter -->
-      <button class="logout-btn-card" type="button" (click)="onLogout()">
-        <ion-icon name="log-out-outline" class="logout-icon"></ion-icon>
-        <span>Se déconnecter</span>
-      </button>
 
     </main>
 
   </div>
+
+  <!-- Hidden file input for file selection -->
+  <input
+    type="file"
+    #fileInput
+    (change)="onFileSelected($event)"
+    accept="image/*"
+    style="display: none;" />
+
+  <!-- ─── MOBILE BOTTOM SHEET PHOTO PICKER (DOCKED AT BOTTOM) ───── -->
+  <div class="photo-picker-backdrop" *ngIf="isPhotoPickerOpen" (click)="closePhotoPicker()">
+    <div class="photo-picker-bottom-sheet" (click)="$event.stopPropagation()">
+      <div class="sheet-drag-pill"></div>
+      
+      <div class="sheet-header">
+        <h3 class="sheet-title">Profile Photo</h3>
+        <p class="sheet-subtitle">Capture real-time snapshot or pick from library</p>
+      </div>
+
+      <div class="picker-options">
+        <!-- Live Real-Time Camera Button -->
+        <button type="button" class="picker-option-card" (click)="startLiveCamera()">
+          <div class="option-icon-orb camera-orb">
+            <ion-icon name="camera"></ion-icon>
+          </div>
+          <div class="option-content">
+            <span class="option-title">Take Photo with Camera</span>
+            <span class="option-caption">Opens live webcam/camera in real-time</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+        </button>
+
+        <!-- Gallery / File Upload Button -->
+        <button type="button" class="picker-option-card" (click)="chooseFromGallery()">
+          <div class="option-icon-orb gallery-orb">
+            <ion-icon name="images"></ion-icon>
+          </div>
+          <div class="option-content">
+            <span class="option-title">Choose from Gallery / Files</span>
+            <span class="option-caption">Select an image from your device</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+        </button>
+      </div>
+
+      <button type="button" class="picker-cancel-button" (click)="closePhotoPicker()">
+        <span>Cancel</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── REAL-TIME LIVE WEBCAM VIEWFINDER MODAL ────────────────── -->
+  <div class="live-camera-backdrop" *ngIf="isCameraActive">
+    <div class="live-camera-modal">
+      <div class="camera-header">
+        <h3 class="camera-title">Live Camera</h3>
+        <button type="button" class="camera-close-btn" (click)="closeLiveCamera()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Live Video Feed -->
+      <div class="video-container">
+        <video #videoPlayer autoplay playsinline class="live-video"></video>
+        <div class="viewfinder-circle-overlay"></div>
+      </div>
+
+      <!-- Shutter Button Row -->
+      <div class="camera-controls">
+        <button type="button" class="shutter-capture-btn" (click)="captureSnapshot()" title="Capture Snapshot">
+          <div class="shutter-inner-orb">
+            <ion-icon name="camera"></ion-icon>
+          </div>
+        </button>
+        <span class="shutter-hint">Tap to capture snapshot</span>
+      </div>
+    </div>
+  </div>
+
 </ion-content>
 
-<ion-loading [isOpen]="isLoading" message="Mise à jour en cours..."></ion-loading>
-<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3000" (didDismiss)="isToastOpen = false"></ion-toast>
+<ion-loading [isOpen]="isLoading" message="Saving photo..." spinner="crescent"></ion-loading>
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3000" (didDismiss)="isToastOpen = false" position="top"></ion-toast>

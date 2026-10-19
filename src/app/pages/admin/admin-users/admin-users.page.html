@@ -1,7 +1,7 @@
 <ion-content class="admin-users-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Header supérieur avec Logo et Badge Admin -->
+    <!-- Top Navigation Header -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -14,42 +14,44 @@
         </div>
         <span class="logo-text">
           <span class="white-text">Ciné</span><span class="orange-text">Match</span>
-          <span class="page-name-title">Utilisateurs</span>
+          <span class="page-name-title">Users</span>
         </span>
       </div>
 
-      <button class="admin-badge-btn" (click)="goTo('/admin/profile')" type="button" title="Voir mon profil admin">
+      <button class="admin-badge-btn" (click)="goTo('/tabs/profile')" type="button" title="View Admin Profile">
         <span>{{ adminInitials }}</span>
       </button>
     </header>
 
-    <!-- Corps principal -->
+    <!-- Main Content -->
     <main class="main-body">
 
-      <!-- Kicker Espace Administrateur -->
+      <!-- Admin Portal Kicker -->
       <div class="hero-section">
-        <span class="kicker-purple">ESPACE ADMINISTRATEUR</span>
+        <span class="kicker-purple">ADMINISTRATION PORTAL</span>
+        <h1 class="page-main-heading">User Management</h1>
+        <p class="page-subheading">{{ totalUsersCount }} registered community members</p>
       </div>
 
-      <!-- Barre de recherche -->
+      <!-- Search Box -->
       <div class="search-box">
         <ion-icon name="search-outline" class="search-icon"></ion-icon>
         <input
           type="text"
           [(ngModel)]="searchQuery"
           (input)="onSearchChange()"
-          placeholder="Nom ou adresse email..."
+          placeholder="Search by name or email address..."
           class="search-input" />
       </div>
 
-      <!-- Filtres Horizontaux (Tous, Actifs, Désactivés) -->
+      <!-- Horizontal Filter Pills (All, Active, Deactivated) -->
       <div class="filter-pills-row">
         <button
           type="button"
           class="filter-pill"
           [class.active]="selectedFilter === 'all'"
           (click)="setFilter('all')">
-          Tous {{ totalUsersCount }}
+          All ({{ totalUsersCount }})
         </button>
 
         <button
@@ -57,7 +59,7 @@
           class="filter-pill"
           [class.active]="selectedFilter === 'active'"
           (click)="setFilter('active')">
-          Actifs
+          Active ({{ activeUsersCount }})
         </button>
 
         <button
@@ -65,22 +67,22 @@
           class="filter-pill"
           [class.active]="selectedFilter === 'inactive'"
           (click)="setFilter('inactive')">
-          Désactivés
+          Deactivated ({{ inactiveUsersCount }})
         </button>
       </div>
 
-      <!-- Spinner pendant le chargement -->
+      <!-- Loading Spinner -->
       <div *ngIf="isLoading" class="state-container ion-text-center">
         <ion-spinner name="crescent" color="primary"></ion-spinner>
-        <p>Chargement des utilisateurs...</p>
+        <p>Loading user accounts...</p>
       </div>
 
-      <!-- État aucun utilisateur -->
+      <!-- Empty State -->
       <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state ion-text-center">
-        <p>Aucun utilisateur trouvé.</p>
+        <p>No users found matching your query.</p>
       </div>
 
-      <!-- Liste des cartes utilisateurs -->
+      <!-- Users Cards List -->
       <div *ngIf="!isLoading && filteredUsers.length > 0" class="users-list">
         <div *ngFor="let user of filteredUsers" class="user-card">
 
@@ -92,7 +94,7 @@
               onerror="this.src='https://ionicframework.com/docs/img/demos/avatar.ionic.png'" />
           </div>
 
-          <!-- Informations Utilisateur -->
+          <!-- User Information -->
           <div class="user-info">
             <h3 class="user-name">{{ user.prenom }} {{ user.nom }}</h3>
             <p class="user-email">{{ user.email }}</p>
@@ -101,16 +103,17 @@
               [class.is-active]="user.active !== false"
               [class.is-inactive]="user.active === false">
               <span class="status-dot"></span>
-              <span>{{ user.active !== false ? 'Actif' : 'Désactivé' }}</span>
+              <span>{{ user.active !== false ? 'Active' : 'Deactivated' }}</span>
             </div>
           </div>
 
-          <!-- Toggle switch Activation / Désactivation -->
+          <!-- Account Activation / Deactivation Toggle -->
           <div class="user-toggle-wrap">
             <ion-toggle
               [checked]="user.active !== false"
               (ionChange)="onToggleActive(user, $event)"
-              class="admin-user-toggle">
+              class="admin-user-toggle"
+              title="Toggle account active/deactivated">
             </ion-toggle>
           </div>
 

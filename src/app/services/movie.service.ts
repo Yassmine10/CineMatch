@@ -11,7 +11,6 @@ import { TmdbService } from './tmdb.service';
 export class MovieService {
   private tmdbService = inject(TmdbService);
 
-  /** Attend que l'utilisateur soit authentifié avant d'écouter Firestore */
   getAdminMovies(): Observable<Movie[]> {
     return new Observable<Movie[]>(subscriber => {
       const auth = getAuth();
@@ -19,16 +18,13 @@ export class MovieService {
 
       let firestoreUnsub: (() => void) | null = null;
 
-      // Attend l'état auth avant de lire Firestore
       const authUnsub = onAuthStateChanged(auth, (user) => {
-        // Annuler l'écoute Firestore précédente
         if (firestoreUnsub) {
           firestoreUnsub();
           firestoreUnsub = null;
         }
 
         if (user) {
-          // Utilisateur connecté → écouter la collection movies
           const moviesRef = collection(db, 'movies');
           firestoreUnsub = onSnapshot(
             moviesRef,
@@ -36,8 +32,6 @@ export class MovieService {
               const movies: Movie[] = [];
               snapshot.forEach(docSnap => {
                 const data = docSnap.data() as Movie;
-                // Préserver le champ id du document (ex: 'custom_xxx', 'tmdb_xxx')
-                // et n'utiliser docSnap.id que si le document n'a pas de champ id propre
                 movies.push({ ...data, id: data.id || docSnap.id });
               });
               subscriber.next(movies);
@@ -48,18 +42,16 @@ export class MovieService {
             }
           );
         } else {
-          // Pas connecté → retourner liste vide
           subscriber.next([]);
         }
       });
 
-      // Cleanup
       return () => {
         authUnsub();
         if (firestoreUnsub) firestoreUnsub();
       };
     }).pipe(
-      startWith([]) // émet [] immédiatement pour débloquer combineLatest
+      startWith([]) 
     );
   }
 
@@ -69,7 +61,6 @@ export class MovieService {
         const combined: Movie[] = [];
         const seenTitles = new Set<string>();
 
-        // 1. Priorité aux films personnalisés / importés par l'admin dans Firestore
         for (const movie of adminMovies) {
           const normalizedTitle = (movie.title || '').trim().toLowerCase();
           if (normalizedTitle && !seenTitles.has(normalizedTitle)) {
@@ -77,8 +68,6 @@ export class MovieService {
             combined.push(movie);
           }
         }
-
-        // 2. Ajout des films TMDB uniquement si pas déjà présents
         for (const movie of tmdbMovies) {
           const normalizedTitle = (movie.title || '').trim().toLowerCase();
           if (normalizedTitle && !seenTitles.has(normalizedTitle)) {
@@ -140,7 +129,7 @@ export class MovieService {
     for (const m of movies) {
       const titleNorm = (m.title || '').trim().toLowerCase();
       if (!titleNorm || existingTitles.has(titleNorm)) {
-        continue; // Éviter les doublons lors de l'import
+        continue; 
       }
 
       existingTitles.add(titleNorm);
@@ -162,7 +151,6 @@ export class MovieService {
     return imported;
   }
 
-  /** Supprime tous les films en doublon dans Firestore en conservant 1 exemplaire unique par titre */
   async removeFirestoreDuplicates(): Promise<number> {
     const db = getFirestore();
     const moviesRef = collection(db, 'movies');
@@ -183,6 +171,13 @@ export class MovieService {
       }
     }
     return deletedCount;
+  }
+
+  async updateMovie(id: string, movie: Partial<Movie>): Promise<void> {
+    const db = getFirestore();
+    const movieRef = doc(db, 'movies', id);
+    const { updateDoc } = await import('firebase/firestore');
+    return updateDoc(movieRef, movie as any);
   }
 
   async deleteMovie(id: string): Promise<void> {

@@ -1,14 +1,10 @@
 <ion-content class="splash-content" [fullscreen]="true">
   <div class="splash-container">
 
-    <!-- Cercles décoratifs en arrière-plan -->
     <div class="bg-circle bg-circle-top"></div>
     <div class="bg-circle bg-circle-bottom"></div>
 
-    <!-- Centre : Logo & Illustration -->
     <div class="center-block">
-      
-      <!-- Icône Mascotte CinéMatch -->
       <div class="logo-orb">
         <div class="orb-dot dot-top"></div>
         <div class="orb-heart">
@@ -18,26 +14,23 @@
         <div class="orb-dot dot-right"></div>
       </div>
 
-      <!-- Titre de l'application -->
       <h1 class="brand-title">
         <span class="cine-part">Ciné</span><span class="match-part">Match</span>
       </h1>
 
-      <!-- Slogan -->
       <p class="brand-slogan">
-        Trouve ceux qui aiment<br />
-        les mêmes films que toi.
+        Find people who share<br />
+        the same favorite movies.
       </p>
     </div>
 
-    <!-- Bas de page : Bouton d'action -->
     <div class="bottom-block">
       <button class="commencer-btn" (click)="onGetStarted()">
-        <span>Commencer</span>
+        <span>Get Started</span>
         <ion-icon name="chevron-forward-outline"></ion-icon>
       </button>
 
-      <span class="appuie-text">APPUIE POUR DÉCOUVRIR</span>
+      <span class="appuie-text">TAP TO DISCOVER</span>
     </div>
 
   </div>

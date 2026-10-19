@@ -25,31 +25,31 @@
       </div>
 
       <h1 class="user-name">{{ matchUser.prenom }} {{ matchUser.nom }}</h1>
-      <p class="user-age" *ngIf="matchUser.age">{{ matchUser.age }} ans</p>
+      <p class="user-age" *ngIf="matchUser.age">{{ matchUser.age }} years old</p>
 
       <div class="stats-row">
         <div class="stat-pill">
           <ion-icon name="film-outline"></ion-icon>
-          {{ userMovies.length }} film{{ userMovies.length > 1 ? 's' : '' }} en playlist
+          {{ userMovies.length }} movie{{ userMovies.length > 1 ? 's' : '' }} in playlist
         </div>
         <div class="stat-pill common">
           <ion-icon name="checkmark-circle-outline"></ion-icon>
-          {{ commonMovieIds.size }} en commun
+          {{ commonMovieIds.size }} in common
         </div>
       </div>
     </div>
 
-    <!-- Section films favoris -->
+    <!-- Favorite Movies Section -->
     <div class="section">
       <div class="section-header">
-        <span class="section-kicker">SA PLAYLIST</span>
-        <h2 class="section-title">Films favoris</h2>
+        <span class="section-kicker">THEIR PLAYLIST</span>
+        <h2 class="section-title">Favorite Movies</h2>
         <p class="section-hint">
-          <span class="dot-common"></span> Films que vous avez en commun
+          <span class="dot-common"></span> Movies you have in common
         </p>
       </div>
 
-      <!-- Grille de films -->
+      <!-- Movies Grid -->
       <div class="movies-grid" *ngIf="userMovies.length > 0; else noMovies">
         <div
           class="movie-card"
@@ -63,7 +63,7 @@
               class="poster"
               (error)="onPosterError($event)"
             />
-            <!-- Badge "en commun" -->
+            <!-- Badge "in common" -->
             <div class="common-badge" *ngIf="isCommon(movie.id)">
               <ion-icon name="checkmark-circle-outline"></ion-icon>
             </div>
@@ -74,7 +74,7 @@
       </div>
 
       <ng-template #noMovies>
-        <p class="no-movies">Cet utilisateur n'a pas encore de films en playlist.</p>
+        <p class="no-movies">This user has not added any movies to their playlist yet.</p>
       </ng-template>
     </div>
 

@@ -4,9 +4,11 @@ export interface UserProfile {
   prenom: string;
   age: number;
   email: string;
-  photo: string; // Base64
+  phoneNumber?: string;
+  photo: string; // Base64 or URL
   role: 'user' | 'admin';
   active: boolean;
   favorites: string[]; // List of movie IDs
   createdAt: string;
 }
+

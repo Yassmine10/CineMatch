@@ -1,7 +1,7 @@
 <ion-content class="movies-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Header avec Logo et Avatar utilisateur -->
+    <!-- Top Navigation Header -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -14,10 +14,12 @@
         </div>
         <span class="logo-text">
           <span class="white-text">Ciné</span><span class="orange-text">Match</span>
+          <span class="page-name-title" *ngIf="isAdmin">Movie Management</span>
         </span>
       </div>
 
-      <div class="user-avatar-wrap" (click)="goToProfile()" title="Mon profil">
+      <!-- Avatar / Badge Button -->
+      <div *ngIf="!isAdmin" class="user-avatar-wrap" (click)="goToProfile()" title="My Profile">
         <img
           *ngIf="currentUser?.photo; else fallbackInitials"
           [src]="currentUser.photo"
@@ -27,29 +29,56 @@
           <div class="avatar-initials">{{ userInitials }}</div>
         </ng-template>
       </div>
+
+      <button *ngIf="isAdmin" class="admin-badge-btn" (click)="goToProfile()" type="button" title="View Admin Profile">
+        <span>{{ userInitials }}</span>
+      </button>
     </header>
 
-    <!-- Section Hero & Titre d'accueil -->
-    <section class="hero-section">
-      <span class="greeting-kicker">{{ greeting }}</span>
-      <h1 class="hero-title">
-        Quel film te fait<br />
-        vibrer <span class="gradient-text">ce soir ?</span>
-      </h1>
+    <!-- Hero Section (Adapts by Role) -->
+    <section class="hero-section" [class.admin-hero]="isAdmin">
+      <!-- Admin Hero -->
+      <div *ngIf="isAdmin" class="hero-header-row">
+        <div class="hero-title-box">
+          <span class="kicker-purple">ADMINISTRATION PORTAL</span>
+          <h1 class="page-main-heading">Movie Catalog</h1>
+          <p class="page-subheading">{{ filteredMovies.length }} movie(s) in database</p>
+        </div>
+
+        <div class="hero-actions-row">
+          <button class="header-add-btn" type="button" (click)="openAddModal()" title="Add or import new movies">
+            <ion-icon name="add-circle"></ion-icon>
+            <span>Add Movie</span>
+          </button>
+          <button class="clean-duplicates-btn" type="button" (click)="cleanDuplicates()" title="Remove duplicate movies">
+            <ion-icon name="trash-outline"></ion-icon>
+            <span>Clean Duplicates</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- User Hero -->
+      <div *ngIf="!isAdmin">
+        <span class="greeting-kicker">{{ greeting }}</span>
+        <h1 class="hero-title">
+          What movie are you<br />
+          in the mood for <span class="gradient-text">tonight?</span>
+        </h1>
+      </div>
     </section>
 
-    <!-- Barre de recherche personnalisée -->
+    <!-- Search Bar -->
     <div class="search-box">
       <ion-icon name="search-outline" class="search-icon"></ion-icon>
       <input
         type="text"
         [(ngModel)]="searchQuery"
         (input)="filterMovies()"
-        placeholder="Rechercher un film..."
+        placeholder="Search movies by title, genre, overview..."
         class="search-input" />
     </div>
 
-    <!-- Filtres de Catégories / Genres horizontaux -->
+    <!-- Category Filter Pills -->
     <div class="categories-scroll">
       <button
         *ngFor="let cat of categories"
@@ -61,62 +90,87 @@
       </button>
     </div>
 
-    <!-- En-tête de section -->
+    <!-- Section Header -->
     <div class="section-header">
-      <h2 class="section-title">À découvrir</h2>
-      <span class="movie-count">{{ filteredMovies.length }} film{{ filteredMovies.length > 1 ? 's' : '' }}</span>
+      <h2 class="section-title">{{ isAdmin ? 'Catalog List' : 'Discover Movies' }}</h2>
+      <span class="movie-count">{{ filteredMovies.length }} movie{{ filteredMovies.length > 1 ? 's' : '' }}</span>
     </div>
 
-    <!-- Spinner de chargement -->
+    <!-- Loading Spinner -->
     <div *ngIf="isLoading" class="state-container ion-text-center">
       <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p>Chargement des films...</p>
+      <p>Loading movies catalog...</p>
     </div>
 
-    <!-- État aucun résultat -->
+    <!-- Empty State -->
     <div *ngIf="!isLoading && filteredMovies.length === 0" class="empty-state ion-text-center">
-      <p>Aucun film trouvé pour cette recherche.</p>
+      <p>No movies found matching your search.</p>
+      <small *ngIf="isAdmin">Click <strong>+ Add Movie</strong> above to import or create movies.</small>
     </div>
 
-    <!-- Grille 2 colonnes des films -->
+    <!-- Responsive Movies Layout: List on Mobile, Cards Grid on Desktop -->
     <div *ngIf="!isLoading && filteredMovies.length > 0" class="movies-grid">
       <div
         *ngFor="let movie of filteredMovies"
         (click)="openDetail(movie)"
-        class="movie-item-card">
+        class="movie-item-card"
+        [class.admin-card]="isAdmin">
 
-        <!-- Affiche avec effet de zoom au survol -->
+        <!-- Poster Thumbnail with Zoom & Rating Badge -->
         <div class="poster-container">
           <img
             [src]="movie.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'"
             [alt]="movie.title"
             class="poster-img"
             (error)="onPosterError($event)" />
-          
-          <!-- Badge note flottant en bas à gauche de l'affiche -->
+
+          <!-- Rating badge -->
           <div class="rating-badge" *ngIf="movie.rating">
             <ion-icon name="star" class="star-icon"></ion-icon>
             <span>{{ movie.rating | number:'1.1-1' }}</span>
           </div>
         </div>
 
-        <!-- Informations & Bouton favori sous l'affiche -->
+        <!-- Movie Details & Action Controls -->
         <div class="movie-footer">
           <div class="text-meta">
             <h3 class="movie-title">{{ movie.title }}</h3>
             <p class="movie-sub">{{ movie.year }} • {{ movie.genre }}</p>
+            <p class="movie-overview-snippet" *ngIf="isAdmin && movie.overview">{{ movie.overview }}</p>
           </div>
 
+          <!-- User Role Action: Favorite Heart -->
           <button
+            *ngIf="!isAdmin"
             class="fav-btn"
             type="button"
             (click)="toggleFavorite(movie, $event)"
-            title="Ajouter à ma playlist">
+            title="Add to playlist">
             <ion-icon
               [name]="isFavorite(movie.id) ? 'heart' : 'heart-outline'"
               [class.active]="isFavorite(movie.id)">
             </ion-icon>
           </button>
+
+          <!-- Admin Role Actions: Edit & Delete -->
+          <div *ngIf="isAdmin" class="admin-actions-wrap" (click)="$event.stopPropagation()">
+            <button
+              class="card-action-btn edit-action-btn"
+              type="button"
+              (click)="openEditModal(movie, $event)"
+              title="Edit Movie">
+              <ion-icon name="create-outline"></ion-icon>
+              <span class="action-btn-text">Edit</span>
+            </button>
+            <button
+              class="card-action-btn delete-action-btn"
+              type="button"
+              (click)="openDeleteModal(movie, $event)"
+              title="Delete Movie">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span class="action-btn-text">Delete</span>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -124,3 +178,262 @@
 
   </div>
 </ion-content>
+
+<!-- ========================================== -->
+<!-- MODAL: ADD / IMPORT MOVIE (ADMIN ONLY)     -->
+<!-- ========================================== -->
+<ion-modal [isOpen]="isAddModalOpen" (didDismiss)="closeAddModal()" class="add-movie-modal">
+  <ng-template>
+    <div class="modal-inner-page">
+
+      <!-- Modal Header -->
+      <header class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-kicker-purple">CATALOG MANAGEMENT</span>
+          <h1 class="modal-main-title">Add or Import Movie</h1>
+        </div>
+
+        <button class="modal-close-btn" (click)="closeAddModal()" type="button" title="Close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </header>
+
+      <!-- Segmented Tabs: TMDB Import vs Manual Creation -->
+      <div class="modal-segmented-control">
+        <button
+          type="button"
+          class="segment-pill"
+          [class.active]="modalTab === 'tmdb'"
+          (click)="setModalTab('tmdb')">
+          <ion-icon name="cloud-download-outline"></ion-icon>
+          <span>TMDB Import</span>
+        </button>
+        <button
+          type="button"
+          class="segment-pill"
+          [class.active]="modalTab === 'manual'"
+          (click)="setModalTab('manual')">
+          <ion-icon name="create-outline"></ion-icon>
+          <span>Manual Entry</span>
+        </button>
+      </div>
+
+      <!-- VIEW 1: TMDB IMPORT -->
+      <div *ngIf="modalTab === 'tmdb'" class="tab-content-fade">
+
+        <!-- 1-Click Preset Classics Card -->
+        <div class="batch-import-card" (click)="onImportAllPreset()">
+          <div class="batch-icon-wrap">
+            <ion-icon name="sparkles-outline"></ion-icon>
+          </div>
+          <div class="batch-text-wrap">
+            <h4>TMDB Cult Classics</h4>
+            <p>15 iconic films ready to import in 1 click</p>
+          </div>
+          <button type="button" class="batch-action-btn">
+            <span>Import All</span>
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- TMDB Search Box -->
+        <div class="modal-search-box">
+          <ion-icon name="search-outline" class="search-icon"></ion-icon>
+          <input
+            type="text"
+            [(ngModel)]="modalSearchQuery"
+            (input)="onModalSearch()"
+            placeholder="Search TMDB (e.g., Oppenheimer, Dune)..."
+            class="modal-search-input" />
+          <ion-spinner *ngIf="isModalSearching" name="crescent" class="modal-search-spinner"></ion-spinner>
+        </div>
+
+        <!-- TMDB Results List -->
+        <div class="modal-results-scroll">
+          <div *ngFor="let item of modalSearchResults" class="tmdb-result-row">
+            <img
+              [src]="item.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'"
+              [alt]="item.title"
+              class="tmdb-thumb"
+              (error)="onPosterError($event)" />
+
+            <div class="tmdb-info">
+              <h4 class="tmdb-title">{{ item.title }}</h4>
+              <p class="tmdb-meta">{{ item.year }} • {{ item.genre }}</p>
+              <div class="tmdb-rating-pill" *ngIf="item.rating">
+                <ion-icon name="star"></ion-icon>
+                <span>{{ item.rating | number:'1.1-1' }}</span>
+              </div>
+            </div>
+
+            <button
+              class="import-single-btn"
+              type="button"
+              [disabled]="isAlreadyImported(item.title)"
+              (click)="onImportSingleMovie(item)">
+              <ion-icon [name]="isAlreadyImported(item.title) ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
+              <span>{{ isAlreadyImported(item.title) ? 'Added' : 'Import' }}</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: MANUAL ENTRY -->
+      <div *ngIf="modalTab === 'manual'" class="tab-content-fade">
+        <form (ngSubmit)="onAddManualMovie()" class="manual-form-grid">
+
+          <div class="field-item">
+            <label class="field-label">Movie Title *</label>
+            <input type="text" [(ngModel)]="title" name="title" placeholder="e.g. Inception" required class="form-input" />
+          </div>
+
+          <div class="form-dual-row">
+            <div class="field-item">
+              <label class="field-label">Release Year *</label>
+              <input type="number" [(ngModel)]="year" name="year" placeholder="e.g. 2010" required class="form-input" />
+            </div>
+
+            <div class="field-item">
+              <label class="field-label">Rating (0 - 10) *</label>
+              <input type="number" step="0.1" min="0" max="10" [(ngModel)]="rating" name="rating" placeholder="e.g. 8.8" required class="form-input" />
+            </div>
+          </div>
+
+          <div class="field-item">
+            <label class="field-label">Genre(s) *</label>
+            <input type="text" [(ngModel)]="genre" name="genre" placeholder="e.g. Sci-Fi, Thriller" required class="form-input" />
+          </div>
+
+          <div class="field-item">
+            <label class="field-label">Poster Image URL *</label>
+            <input type="url" [(ngModel)]="posterUrl" name="posterUrl" placeholder="https://..." required class="form-input" />
+          </div>
+
+          <div class="field-item">
+            <label class="field-label">Plot Overview *</label>
+            <textarea [(ngModel)]="overview" name="overview" rows="3" placeholder="Summary of the storyline..." required class="form-textarea"></textarea>
+          </div>
+
+          <button type="submit" class="submit-add-btn">
+            <ion-icon name="checkmark-outline"></ion-icon>
+            <span>Save Movie to Database</span>
+          </button>
+
+        </form>
+      </div>
+
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ========================================== -->
+<!-- MODAL: EDIT MOVIE (ADMIN ONLY)             -->
+<!-- ========================================== -->
+<ion-modal [isOpen]="isEditModalOpen" (didDismiss)="closeEditModal()" class="add-movie-modal edit-movie-modal">
+  <ng-template>
+    <div class="modal-inner-page">
+
+      <header class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-kicker-purple">CATALOG MANAGEMENT</span>
+          <h1 class="modal-main-title">Edit Movie Details</h1>
+        </div>
+
+        <button class="modal-close-btn" (click)="closeEditModal()" type="button" title="Close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </header>
+
+      <form (ngSubmit)="onSaveMovieEdit()" class="manual-form-grid">
+
+        <div class="field-item">
+          <label class="field-label">Movie Title *</label>
+          <input type="text" [(ngModel)]="editTitle" name="editTitle" placeholder="e.g. Inception" required class="form-input" />
+        </div>
+
+        <div class="form-dual-row">
+          <div class="field-item">
+            <label class="field-label">Release Year *</label>
+            <input type="number" [(ngModel)]="editYear" name="editYear" placeholder="e.g. 2010" required class="form-input" />
+          </div>
+
+          <div class="field-item">
+            <label class="field-label">Rating (0 - 10)</label>
+            <input type="number" step="0.1" min="0" max="10" [(ngModel)]="editRating" name="editRating" placeholder="e.g. 8.8" class="form-input" />
+          </div>
+        </div>
+
+        <div class="field-item">
+          <label class="field-label">Genre(s) *</label>
+          <input type="text" [(ngModel)]="editGenre" name="editGenre" placeholder="e.g. Sci-Fi, Thriller" required class="form-input" />
+        </div>
+
+        <div class="field-item">
+          <label class="field-label">Poster Image URL</label>
+          <input type="url" [(ngModel)]="editPosterUrl" name="editPosterUrl" placeholder="https://..." class="form-input" />
+        </div>
+
+        <div class="field-item">
+          <label class="field-label">Plot Overview</label>
+          <textarea [(ngModel)]="editOverview" name="editOverview" rows="3" placeholder="Summary..." class="form-textarea"></textarea>
+        </div>
+
+        <div class="edit-modal-actions-row">
+          <button type="button" class="cancel-modal-btn" (click)="closeEditModal()">
+            Cancel
+          </button>
+          <button type="submit" class="submit-add-btn">
+            <ion-icon name="checkmark-outline"></ion-icon>
+            <span>Save Changes</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ========================================== -->
+<!-- MODAL: DELETE CONFIRMATION (ADMIN ONLY)    -->
+<!-- ========================================== -->
+<ion-modal [isOpen]="isDeleteModalOpen" (didDismiss)="closeDeleteModal()" class="delete-movie-modal">
+  <ng-template>
+    <div class="delete-modal-inner">
+      <div class="delete-modal-icon-wrap">
+        <ion-icon name="trash-outline"></ion-icon>
+      </div>
+
+      <h2 class="delete-modal-title">Delete Movie?</h2>
+      <p class="delete-modal-desc">
+        Are you sure you want to remove <strong>"{{ movieToDelete?.title }}"</strong> from the catalog? This action cannot be undone.
+      </p>
+
+      <div class="delete-modal-actions">
+        <button type="button" class="cancel-btn" (click)="closeDeleteModal()">
+          Cancel
+        </button>
+        <button type="button" class="confirm-delete-btn" (click)="confirmDeleteMovie()">
+          <ion-icon name="trash"></ion-icon>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Toast & Loading Feedback -->
+<ion-toast
+  [isOpen]="isToastOpen"
+  [message]="toastMessage"
+  [duration]="3000"
+  (didDismiss)="isToastOpen = false"
+  position="top">
+</ion-toast>
+
+<ion-loading
+  [isOpen]="isActionLoading"
+  [message]="loadingMessage"
+  spinner="crescent">
+</ion-loading>

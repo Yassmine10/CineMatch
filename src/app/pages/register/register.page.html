@@ -1,140 +1,205 @@
 <ion-content class="register-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Header supérieur avec Retour et Titre -->
     <header class="top-nav">
-      <button class="nav-btn" (click)="goBack()" type="button" title="Retour">
+      <button class="nav-btn" (click)="goBack()" type="button" title="Back to Login">
         <ion-icon name="chevron-back-outline"></ion-icon>
       </button>
 
-      <h1 class="page-title">Créer mon profil</h1>
+      <h1 class="page-title">Create Account</h1>
 
-      <!-- Spacer invisible pour alignement parfait -->
       <div class="nav-spacer"></div>
     </header>
 
-    <!-- Corps de la page -->
     <main class="main-body">
-
-      <!-- Section Avatar Photo -->
+      <!-- Avatar Section with Tap Trigger -->
       <div class="avatar-section">
-        <div class="avatar-dashed-ring" (click)="takePhoto()">
-          <img *ngIf="photoBase64" [src]="photoBase64" alt="Photo de profil" class="user-photo-img" />
+        <div class="avatar-dashed-ring" (click)="openPhotoPicker()">
+          <img *ngIf="photoBase64" [src]="photoBase64" alt="Profile photo" class="user-photo-img" />
           <div *ngIf="!photoBase64" class="default-avatar-placeholder">
             <ion-icon name="person-outline"></ion-icon>
           </div>
 
-          <!-- Bouton violet flottant Caméra -->
-          <button class="camera-floating-btn" type="button" (click)="takePhoto()">
+          <button class="camera-floating-btn" type="button" (click)="openPhotoPicker(); $event.stopPropagation()">
             <ion-icon name="camera-outline"></ion-icon>
           </button>
         </div>
 
-        <p class="avatar-hint">Ajoute une photo pour être reconnu·e</p>
+        <p class="avatar-hint">Tap to add your profile photo</p>
       </div>
 
-      <!-- Formulaire d'inscription -->
+      <!-- Hidden File Input for Native File Explorer Fallback -->
+      <input
+        type="file"
+        #fileInput
+        (change)="onFileSelected($event)"
+        accept="image/*"
+        style="display: none;" />
+
+      <!-- Registration Form -->
       <form (ngSubmit)="onRegister()" class="custom-form">
 
-        <!-- Ligne 2 colonnes : Prénom et Nom -->
         <div class="form-row-2col">
           <div class="field-group">
-            <label class="field-label">Prénom</label>
+            <label class="field-label">First Name</label>
             <div class="input-box">
               <input
                 type="text"
                 [(ngModel)]="prenom"
                 name="prenom"
-                placeholder="Léa"
+                placeholder="First Name"
                 required
                 class="native-input" />
             </div>
           </div>
 
           <div class="field-group">
-            <label class="field-label">Nom</label>
+            <label class="field-label">Last Name</label>
             <div class="input-box">
               <input
                 type="text"
                 [(ngModel)]="nom"
                 name="nom"
-                placeholder="Martin"
+                placeholder="Last Name"
                 required
                 class="native-input" />
             </div>
           </div>
         </div>
 
-        <!-- Champ Âge -->
         <div class="field-group">
-          <label class="field-label">Âge</label>
+          <label class="field-label">Age</label>
           <div class="input-box">
             <input
               type="number"
               [(ngModel)]="age"
               name="age"
-              placeholder="28"
-              min="1"
+              placeholder="e.g. 24"
+              min="13"
               max="120"
-              required
               class="native-input" />
           </div>
         </div>
 
-        <!-- Champ Adresse Email -->
         <div class="field-group">
-          <label class="field-label">Adresse email</label>
+          <label class="field-label">Email Address</label>
           <div class="input-box">
             <ion-icon name="mail-outline" class="input-icon"></ion-icon>
             <input
               type="email"
               [(ngModel)]="email"
               name="email"
-              placeholder="lea@exemple.com"
+              placeholder="Email"
               required
               class="native-input" />
           </div>
         </div>
 
-        <!-- Champ Mot de passe avec bouton oeil -->
         <div class="field-group">
-          <label class="field-label">Mot de passe</label>
+          <label class="field-label">Password</label>
           <div class="input-box">
             <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
             <input
               [type]="showPassword ? 'text' : 'password'"
               [(ngModel)]="password"
               name="password"
-              placeholder="8 caractères minimum"
+              placeholder="At least 6 characters"
               required
               class="native-input" />
             <button
               type="button"
               class="eye-toggle-btn"
               (click)="toggleShowPassword()"
-              [title]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+              [title]="showPassword ? 'Hide password' : 'Show password'">
               <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
             </button>
           </div>
         </div>
 
-        <!-- Bouton S'inscrire -->
         <button type="submit" class="action-btn-pill ion-margin-top">
-          <span>S’inscrire</span>
+          <span>Create Account</span>
           <ion-icon name="chevron-forward-outline"></ion-icon>
         </button>
 
       </form>
 
-      <!-- Mention légale / CGU -->
       <div class="footer-terms">
-        <p>En t'inscrivant, tu acceptes nos conditions d'utilisation.</p>
+        <p>By registering, you agree to CinéMatch terms of service.</p>
       </div>
 
     </main>
-
   </div>
+
+  <!-- ======================================================= -->
+  <!-- DOCKED MOBILE BOTTOM SHEET: PHOTO PICKER (NOT A POPUP)  -->
+  <!-- ======================================================= -->
+  <div class="photo-picker-backdrop" *ngIf="isPhotoPickerOpen" (click)="closePhotoPicker()">
+    <div class="photo-picker-bottom-sheet" (click)="$event.stopPropagation()">
+      <div class="sheet-drag-pill"></div>
+
+      <div class="sheet-header">
+        <h3 class="sheet-title">Profile Photo</h3>
+        <p class="sheet-subtitle">Select an option to add your avatar</p>
+      </div>
+
+      <div class="picker-options">
+        <!-- Option 1: Live Real-Time Camera -->
+        <button type="button" class="picker-option-card" (click)="startLiveCamera()">
+          <div class="option-icon-orb camera-orb">
+            <ion-icon name="camera"></ion-icon>
+          </div>
+          <div class="option-content">
+            <span class="option-title">Take Live Photo</span>
+            <span class="option-caption">Live camera capture in real-time</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+        </button>
+
+        <!-- Option 2: Gallery / File Library -->
+        <button type="button" class="picker-option-card" (click)="chooseFromGallery()">
+          <div class="option-icon-orb gallery-orb">
+            <ion-icon name="images"></ion-icon>
+          </div>
+          <div class="option-content">
+            <span class="option-title">Choose from Gallery</span>
+            <span class="option-caption">Pick an existing photo or file</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+        </button>
+      </div>
+
+      <button type="button" class="picker-cancel-button" (click)="closePhotoPicker()">
+        <span>Cancel</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- REAL-TIME LIVE WEBCAM VIEWFINDER MODAL                  -->
+  <!-- ======================================================= -->
+  <div class="live-camera-backdrop" *ngIf="isCameraActive">
+    <div class="live-camera-modal">
+      <div class="camera-header">
+        <h3 class="camera-title">Take Profile Photo</h3>
+        <button type="button" class="camera-close-btn" (click)="closeLiveCamera()" title="Close Camera">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="video-container">
+        <video #videoPlayer autoplay playsinline muted class="live-video"></video>
+        <div class="viewfinder-circle"></div>
+      </div>
+
+      <div class="camera-controls">
+        <button type="button" class="capture-shutter-btn" (click)="captureSnapshot()" title="Capture photo">
+          <ion-icon name="camera"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </ion-content>
 
-<ion-loading [isOpen]="isLoading" message="Création du profil en cours..."></ion-loading>
-<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3500" (didDismiss)="isToastOpen = false"></ion-toast>
+<ion-loading [isOpen]="isLoading" message="Creating your profile..." spinner="crescent"></ion-loading>
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="4000" (didDismiss)="isToastOpen = false" position="top"></ion-toast>

@@ -1,7 +1,7 @@
 <ion-content class="login-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Header supérieur avec Logo -->
+    <!-- Top Navigation Header with Logo -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -18,40 +18,40 @@
       </div>
     </header>
 
-    <!-- Corps de la page -->
+    <!-- Main Content Body -->
     <main class="main-body">
 
-      <!-- Titres & Slogan -->
+      <!-- Titles & Hero Banner -->
       <div class="hero-section">
-        <span class="kicker-badge">RAVI DE TE REVOIR</span>
+        <span class="kicker-badge">WELCOME BACK</span>
         <h1 class="hero-title">
-          Prêt pour ta prochaine<br />
-          <span class="gradient-text">rencontre cinéma ?</span>
+          Ready for your next<br />
+          <span class="gradient-text">movie match?</span>
         </h1>
-        <p class="hero-subtitle">Connecte-toi pour retrouver tes films et tes matchs.</p>
+        <p class="hero-subtitle">Sign in to find your favorite films and discover matches.</p>
       </div>
 
-      <!-- Formulaire de connexion -->
+      <!-- Login Form -->
       <form (ngSubmit)="onLogin()" class="custom-form">
 
-        <!-- Champ Email -->
+        <!-- Email Field -->
         <div class="field-group">
-          <label class="field-label">Adresse email</label>
+          <label class="field-label">Email Address</label>
           <div class="input-box">
             <ion-icon name="mail-outline" class="input-icon"></ion-icon>
             <input
               type="email"
               [(ngModel)]="email"
               name="email"
-              placeholder="toi@exemple.com"
+              placeholder="Email"
               required
               class="native-input" />
           </div>
         </div>
 
-        <!-- Champ Mot de passe avec bouton oeil -->
+        <!-- Password Field with Toggle -->
         <div class="field-group">
-          <label class="field-label">Mot de passe</label>
+          <label class="field-label">Password</label>
           <div class="input-box">
             <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
             <input
@@ -65,28 +65,28 @@
               type="button"
               class="eye-toggle-btn"
               (click)="toggleShowPassword()"
-              [title]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+              [title]="showPassword ? 'Hide password' : 'Show password'">
               <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
             </button>
           </div>
         </div>
 
-        <!-- Lien Mot de passe oublié -->
+        <!-- Forgot Password Link -->
         <div class="forgot-wrapper">
-          <a routerLink="/forgot-password" class="forgot-link">Mot de passe oublié ?</a>
+          <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
         </div>
 
-        <!-- Bouton Se connecter -->
+        <!-- Submit Button -->
         <button type="submit" class="action-btn-pill">
-          <span>Se connecter</span>
+          <span>Sign In</span>
           <ion-icon name="chevron-forward-outline"></ion-icon>
         </button>
 
       </form>
 
-      <!-- Lien vers Inscription -->
+      <!-- Redirect to Register -->
       <div class="bottom-redirect">
-        <p>Nouveau sur CinéMatch ? <a routerLink="/register" class="signup-link">Créer un compte</a></p>
+        <p>New to CinéMatch? <a routerLink="/register" class="signup-link">Create an account</a></p>
       </div>
 
     </main>
@@ -94,5 +94,6 @@
   </div>
 </ion-content>
 
-<ion-loading [isOpen]="isLoading" message="Connexion en cours..."></ion-loading>
-<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="3500" (didDismiss)="isToastOpen = false"></ion-toast>
+<ion-loading [isOpen]="isLoading" message="Signing in..." spinner="crescent"></ion-loading>
+<ion-toast [isOpen]="isToastOpen" [message]="toastMessage" [duration]="4000" (didDismiss)="isToastOpen = false" position="top"></ion-toast>
+
