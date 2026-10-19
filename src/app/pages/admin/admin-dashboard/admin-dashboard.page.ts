@@ -52,7 +52,6 @@ export class AdminDashboardPage implements OnInit {
       this.currentUser = user;
       this.totalMoviesCount = movies.length;
 
-      // Filtrer les comptes utilisateurs réguliers (exclure les admins)
       const regularUsers = users.filter(u => (u.role as string)?.trim() !== 'admin');
       this.totalUsersCount = regularUsers.length;
       this.activeUsersCount = regularUsers.filter(u => u.active !== false).length;

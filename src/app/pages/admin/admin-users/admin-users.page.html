@@ -1,7 +1,6 @@
 <ion-content class="admin-users-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Top Navigation Header -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -23,17 +22,14 @@
       </button>
     </header>
 
-    <!-- Main Content -->
     <main class="main-body">
 
-      <!-- Admin Portal Kicker -->
       <div class="hero-section">
         <span class="kicker-purple">ADMINISTRATION PORTAL</span>
         <h1 class="page-main-heading">User Management</h1>
         <p class="page-subheading">{{ totalUsersCount }} registered community members</p>
       </div>
 
-      <!-- Search Box -->
       <div class="search-box">
         <ion-icon name="search-outline" class="search-icon"></ion-icon>
         <input
@@ -44,7 +40,6 @@
           class="search-input" />
       </div>
 
-      <!-- Horizontal Filter Pills (All, Active, Deactivated) -->
       <div class="filter-pills-row">
         <button
           type="button"
@@ -71,22 +66,18 @@
         </button>
       </div>
 
-      <!-- Loading Spinner -->
       <div *ngIf="isLoading" class="state-container ion-text-center">
         <ion-spinner name="crescent" color="primary"></ion-spinner>
         <p>Loading user accounts...</p>
       </div>
 
-      <!-- Empty State -->
       <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state ion-text-center">
         <p>No users found matching your query.</p>
       </div>
 
-      <!-- Users Cards List -->
       <div *ngIf="!isLoading && filteredUsers.length > 0" class="users-list">
         <div *ngFor="let user of filteredUsers" class="user-card">
 
-          <!-- Avatar -->
           <div class="user-avatar-wrap">
             <img
               [src]="user.photo || 'https://ionicframework.com/docs/img/demos/avatar.ionic.png'"
@@ -94,7 +85,6 @@
               onerror="this.src='https://ionicframework.com/docs/img/demos/avatar.ionic.png'" />
           </div>
 
-          <!-- User Information -->
           <div class="user-info">
             <h3 class="user-name">{{ user.prenom }} {{ user.nom }}</h3>
             <p class="user-email">{{ user.email }}</p>
@@ -107,7 +97,6 @@
             </div>
           </div>
 
-          <!-- Account Activation / Deactivation Toggle -->
           <div class="user-toggle-wrap">
             <ion-toggle
               [checked]="user.active !== false"

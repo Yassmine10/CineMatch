@@ -1,7 +1,6 @@
 <ion-content class="login-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Top Navigation Header with Logo -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -18,10 +17,8 @@
       </div>
     </header>
 
-    <!-- Main Content Body -->
     <main class="main-body">
 
-      <!-- Titles & Hero Banner -->
       <div class="hero-section">
         <span class="kicker-badge">WELCOME BACK</span>
         <h1 class="hero-title">
@@ -31,10 +28,8 @@
         <p class="hero-subtitle">Sign in to find your favorite films and discover matches.</p>
       </div>
 
-      <!-- Login Form -->
       <form (ngSubmit)="onLogin()" class="custom-form">
 
-        <!-- Email Field -->
         <div class="field-group">
           <label class="field-label">Email Address</label>
           <div class="input-box">
@@ -49,7 +44,6 @@
           </div>
         </div>
 
-        <!-- Password Field with Toggle -->
         <div class="field-group">
           <label class="field-label">Password</label>
           <div class="input-box">
@@ -71,12 +65,10 @@
           </div>
         </div>
 
-        <!-- Forgot Password Link -->
         <div class="forgot-wrapper">
           <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
         </div>
 
-        <!-- Submit Button -->
         <button type="submit" class="action-btn-pill">
           <span>Sign In</span>
           <ion-icon name="chevron-forward-outline"></ion-icon>
@@ -84,7 +76,6 @@
 
       </form>
 
-      <!-- Redirect to Register -->
       <div class="bottom-redirect">
         <p>New to CinéMatch? <a routerLink="/register" class="signup-link">Create an account</a></p>
       </div>

@@ -8,7 +8,6 @@ export const AdminGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   return authService.currentUser$.pipe(
-    // Attendre que l'état auth soit résolu (pas null initial)
     filter(user => user !== null),
     take(1),
     map(user => {

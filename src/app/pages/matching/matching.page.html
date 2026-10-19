@@ -1,13 +1,11 @@
 <ion-content [fullscreen]="true" class="match-content">
 
-  <!-- Pull-to-refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content pullingIcon="refresh-outline" refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
 
   <div class="page-container">
 
-    <!-- ─── HEADER ────────────────────────────────────────────── -->
     <header class="match-header">
       <div class="kicker-wrap">
         <ion-icon name="sparkles-outline"></ion-icon>
@@ -19,7 +17,6 @@
         Discover cinephiles who share your cinematic passion, ranked by real playlist affinity and common favorites.
       </p>
 
-      <!-- Filter Tabs / Chips -->
       <div class="filter-chips-row" *ngIf="!isLoading && !hasNoFavorites">
         <button
           type="button"
@@ -51,7 +48,6 @@
       </div>
     </header>
 
-    <!-- ─── SKELETON LOADING ───────────────────────────────── -->
     <div class="skeleton-grid" *ngIf="isLoading">
       <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
         <div class="sk-top">
@@ -69,7 +65,6 @@
       </div>
     </div>
 
-    <!-- ─── EMPTY STATE: NO FAVORITES ────────────────────────── -->
     <div class="empty-state" *ngIf="!isLoading && hasNoFavorites">
       <div class="empty-glow-icon">🎬</div>
       <h2>Your CineMatch Playlist is Empty</h2>
@@ -82,7 +77,6 @@
       </button>
     </div>
 
-    <!-- ─── EMPTY STATE: NO MATCHES AT FILTER THRESHOLD ──────── -->
     <div class="empty-state" *ngIf="!isLoading && !hasNoFavorites && filteredMatches.length === 0">
       <div class="empty-glow-icon">🔍</div>
       <h2>No Matches at this Threshold</h2>
@@ -95,13 +89,10 @@
       </button>
     </div>
 
-    <!-- ─── RESPONSIVE MATCHES CONTAINER ─────────────────────── -->
-    <!-- Desktop: Multi-column Card Grid | Mobile: Compact High-Density Cards -->
     <div class="matches-grid" *ngIf="!isLoading && !hasNoFavorites && filteredMatches.length > 0">
 
       <div class="match-card" *ngFor="let match of filteredMatches">
 
-        <!-- Card Top: User Info & Affinity Gauge -->
         <div class="card-head">
           <div class="avatar-wrap">
             <img
@@ -122,14 +113,12 @@
             </div>
           </div>
 
-          <!-- Affinity Score Radial / Box -->
           <div class="affinity-score-badge" [ngClass]="getBadgeClass(match.percentage)">
             <span class="score-num">{{ match.percentage | number:'1.0-0' }}%</span>
             <span class="score-label">Affinity</span>
           </div>
         </div>
 
-        <!-- Shared Movies Strip -->
         <div class="common-strip" *ngIf="match.commonMovies && match.commonMovies.length > 0">
           <div class="common-strip-head">
             <ion-icon name="film-outline"></ion-icon>
@@ -148,8 +137,7 @@
             </div>
           </div>
         </div>
-
-        <!-- Action CTA -->
+        
         <div class="card-foot">
           <button class="btn-profile" (click)="viewProfile(match)" type="button">
             <span>View Cinephile Profile</span>

@@ -29,12 +29,12 @@ export const routes: Routes = [
       {
         path: 'matching/:uid',
         loadComponent: () =>
-          import('../matching/match-profile.page').then(m => m.MatchProfilePage)
+          import('../match-profile/match-profile.page').then(m => m.MatchProfilePage)
       },
       {
         path: 'match-profile/:uid',
         loadComponent: () =>
-          import('../matching/match-profile.page').then(m => m.MatchProfilePage)
+          import('../match-profile/match-profile.page').then(m => m.MatchProfilePage)
       },
       {
         path: 'users',

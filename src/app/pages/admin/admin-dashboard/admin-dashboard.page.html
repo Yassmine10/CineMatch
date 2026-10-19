@@ -1,7 +1,6 @@
 <ion-content class="dashboard-content" [fullscreen]="true">
   <div class="page-container">
 
-    <!-- Top Navigation Header -->
     <header class="top-nav">
       <div class="nav-logo">
         <div class="logo-orb-small">
@@ -18,16 +17,13 @@
         </span>
       </div>
 
-      <!-- Admin Initials Badge -->
       <button class="admin-badge-btn" (click)="goTo('/tabs/profile')" type="button" title="View Admin Profile">
         <span>{{ adminInitials }}</span>
       </button>
     </header>
 
-    <!-- Main Content -->
     <main class="main-body">
 
-      <!-- Hero Section -->
       <section class="hero-section">
         <span class="kicker-purple">ADMINISTRATION PORTAL</span>
         <span class="kicker-gold">OVERVIEW</span>
@@ -35,11 +31,9 @@
         <p class="hero-subtitle">Here is what is happening across CinéMatch today.</p>
       </section>
 
-      <!-- KPI Stats Section -->
       <section class="kpi-section">
 
         <div class="kpi-grid-3col">
-          <!-- KPI Movies -->
           <div class="kpi-card" (click)="goTo('/tabs/movies')">
             <div class="kpi-icon-square purple-square">
               <ion-icon name="film-outline"></ion-icon>
@@ -49,7 +43,6 @@
             <span class="kpi-growth">In Catalog</span>
           </div>
 
-          <!-- KPI Users -->
           <div class="kpi-card" (click)="goTo('/tabs/users')">
             <div class="kpi-icon-square purple-square">
               <ion-icon name="people-outline"></ion-icon>
@@ -59,7 +52,6 @@
             <span class="kpi-growth">Active community</span>
           </div>
 
-          <!-- KPI Active Accounts (Same uniform size and design) -->
           <div class="kpi-card" (click)="goTo('/tabs/users')">
             <div class="kpi-icon-square purple-square">
               <ion-icon name="checkmark-outline"></ion-icon>
@@ -72,13 +64,11 @@
 
       </section>
 
-      <!-- Quick Actions Section -->
       <section class="quick-access-section">
         <h2 class="section-title">Quick Actions</h2>
 
         <div class="access-cards-list">
 
-          <!-- Shortcut Manage Movies -->
           <div class="access-card" (click)="goTo('/tabs/movies')">
             <div class="access-icon-box purple-bg">
               <ion-icon name="film-outline"></ion-icon>
@@ -90,7 +80,6 @@
             <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
           </div>
 
-          <!-- Shortcut Manage Users -->
           <div class="access-card" (click)="goTo('/tabs/users')">
             <div class="access-icon-box gold-bg">
               <ion-icon name="people-outline"></ion-icon>
